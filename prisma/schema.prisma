@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SSO_AUTH_ACCESS_L {
+  user_id          String           @db.Uuid
+  role_id          String           @db.Uuid
+  created_by       String           @db.VarChar(50)
+  created_date     DateTime?        @default(now()) @db.Timestamp(6)
+  last_update_by   String           @db.VarChar(50)
+  last_update_date DateTime?        @default(now()) @db.Timestamp(6)
+  SSO_AUTH_ROLES_T SSO_AUTH_ROLES_T @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_role")
+  SSO_AUTH_USERS_T SSO_AUTH_USERS_T @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+
+  @@id([user_id, role_id], map: "pk_sso_auth_access")
+  @@index([user_id, role_id], map: "idx_sso_auth_access")
+}
+
+model SSO_AUTH_CLIENTS_T {
+  app_name          String              @unique(map: "idx_sso_client_name") @db.VarChar(200)
+  client_id         String              @id @default(dbgenerated("encode(gen_random_bytes(32), 'hex'::text)")) @db.VarChar(100)
+  client_secret     String?             @default(dbgenerated("encode(gen_random_bytes(16), 'hex'::text)")) @db.VarChar(100)
+  created_date      DateTime?           @default(now()) @db.Timestamp(6)
+  SSO_AUTH_GRANTS_T SSO_AUTH_GRANTS_T[]
+  SSO_AUTH_TOKEN_T  SSO_AUTH_TOKEN_T[]
+
+  @@index([client_id, client_secret], map: "idx_sso_client_id")
+}
+
+model SSO_AUTH_EMPLOYEE_INFO_T {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id          String           @db.Uuid @map("user_id")
+  job_title        String?          @db.VarChar(100)
+  department       String?          @db.VarChar(50)
+  company_name     String?          @db.VarChar(100)
+  location         String?          @db.VarChar(100)
+  hire_date        DateTime?        @db.Timestamp(6)
+  SSO_AUTH_USERS_T SSO_AUTH_USERS_T @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+
+  @@index([user_id], map: "idx_sso_users_info")
+}
+
+model SSO_AUTH_GRANTS_T {
+  id                 String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  client_id          String             @db.VarChar(100)
+  grant_name         String             @db.VarChar(50)
+  created_date       DateTime?          @default(now()) @db.Timestamp(6)
+  SSO_AUTH_CLIENTS_T SSO_AUTH_CLIENTS_T @relation(fields: [client_id], references: [client_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_grants")
+
+  @@index([client_id], map: "idx_sso_grants_cl")
+  @@index([grant_name], map: "idx_sso_grants_nm")
+}
+
+model SSO_AUTH_ROLES_T {
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rol_name          String              @unique @db.VarChar(50)
+  rol_code          String              @unique @db.VarChar(50)
+  created_by        String              @db.VarChar(50)
+  created_date      DateTime?           @default(now()) @db.Timestamp(6)
+  last_update_by    String              @db.VarChar(50)
+  last_update_date  DateTime?           @default(now()) @db.Timestamp(6)
+  SSO_AUTH_ACCESS_L SSO_AUTH_ACCESS_L[]
+}
+
+model SSO_AUTH_TOKEN_T {
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id            String?             @db.Uuid
+  client_id          String?             @db.VarChar(100)
+  access_token       String              @unique(map: "idx_sso_auth_token") @db.VarChar(600)
+  refresh_token      String              @unique(map: "idx_sso_auth_refresh") @db.VarChar(600)
+  access_expires     DateTime?           @db.Timestamp(6)
+  access_refresh     DateTime?           @db.Timestamp(6)
+  SSO_AUTH_CLIENTS_T SSO_AUTH_CLIENTS_T? @relation(fields: [client_id], references: [client_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_client")
+  SSO_AUTH_USERS_T   SSO_AUTH_USERS_T?   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usr")
+
+  @@index([client_id], map: "idx_sso_auth_clien")
+  @@index([user_id], map: "idx_sso_auth_user")
+}
+
+model SSO_AUTH_USERS_T {
+  id                       String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username                 String                     @db.VarChar(50)
+  name                     String                     @db.VarChar(100)
+  last_name                String                     @db.VarChar(100)
+  email                    String                     @unique @db.VarChar(150)
+  phone                    String?                    @db.VarChar(20)
+  password                 String
+  profile_picture          String?
+  status                   String?                    @default("ACTIVE") @db.VarChar(20)
+  last_login               DateTime?                  @db.Timestamp(6)
+  reset_token              String?
+  verified                 Boolean?                   @default(false)
+  bio                      String?
+  created_date             DateTime?                  @default(now()) @db.Timestamp(6)
+  updated_date             DateTime?                  @default(now()) @db.Timestamp(6)
+  SSO_AUTH_ACCESS_L        SSO_AUTH_ACCESS_L[]
+  SSO_AUTH_EMPLOYEE_INFO_T SSO_AUTH_EMPLOYEE_INFO_T[]
+  SSO_AUTH_TOKEN_T         SSO_AUTH_TOKEN_T[]
+
+  @@index([last_login], map: "idx_sso_users_last_login")
+}

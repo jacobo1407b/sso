@@ -1,0 +1,27 @@
+npx prisma migrate dev --name add_age_field
+npx prisma generate
+
+
+npx prisma db pull  # Sincronizar Prisma con la DB
+npx prisma generate  # Regenerar el cliente
+
+
+
+-                                            Autenticacion
+Login	                            POST /auth/login	            Inicio de sesión con credenciales o autenticación federada.
+Registro de Usuario	                POST /auth/register	            Crear una cuenta con validaciones de seguridad.
+Recuperación de Contraseña	        POST /auth/recover-password 	Enviar códigos de verificación por email/SMS.
+Autenticación Multifactor (MFA) 	POST /auth/mfa/verify	        Confirmación con OTP o Google Authenticator.
+
+-                                            Gestion de acceso
+
+Selección de Organización	        GET /auth/select-org	        Muestra opciones si el usuario pertenece a múltiples organizaciones.
+Dashboard de Usuario	            GET /user/profile	            Datos del usuario, roles y accesos.
+Panel de Administración	            GET /admin/dashboard        	Gestionar roles, permisos y usuarios del sistema.
+Gestión de Sesiones	                GET /auth/sessions	            Ver sesiones activas y cerrar sesión en dispositivos remotos.
+
+-                                           SEGURIDAD
+
+
+Auditoría de Accesos	            GET /admin/audit-logs	        Registro de inicios de sesión y actividad.
+Configuración de Seguridad      	GET /user/security-settings 	Personalizar autenticación, MFA y permisos.
