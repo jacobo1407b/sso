@@ -1,5 +1,6 @@
 import express from "express";
-import { authTokenController } from "@controllers/oauth.controller";
+import { authTokenController, autorizeController } from "@controllers/oauth.controller";
+import { authenticateRequest } from "@middleware/authMiddleware";
 
 const router = express.Router();
 /**
@@ -182,5 +183,6 @@ const router = express.Router();
 
 
 router.post("/token", authTokenController);
+router.get("/authorize", authenticateRequest, autorizeController)
 
 export default router;

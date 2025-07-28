@@ -1,5 +1,6 @@
 import OAuth2Server from "oauth2-server";
 import { getServer } from "@config/oauth";
+import { Request } from "express";
 
 
 export const authTokenController = async (req: Request, res: any) => {
@@ -19,6 +20,14 @@ export const authTokenController = async (req: Request, res: any) => {
             token_type: 'Bearer',
             expires_in: token.accessTokenExpiresAt
         });
+    } catch (err: any) {
+        res.status(err.code || 500).json(err);
+    }
+}
+
+export const autorizeController = async (req: Request, res: any) => {
+    try {
+        res.status(200).json(req.user);
     } catch (err: any) {
         res.status(err.code || 500).json(err);
     }
