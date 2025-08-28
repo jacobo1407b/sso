@@ -1,0 +1,32 @@
+type: object
+required:
+  - id
+properties:
+  id:
+    type: string
+    example: "a1b2c3d4"
+  role_name:
+    type: string
+    nullable: true
+    example: "Administrador"
+  role_code:
+    type: string
+    nullable: true
+    example: "ADMIN"
+  description:
+    type: string
+    nullable: true
+    example: "Rol con acceso completo al sistema"
+  created_date:
+    type: string
+    format: date-time
+    nullable: true
+    example: "2025-08-23T13:47:00Z"
+  created_by:
+    type: string
+    nullable: true
+    example: "jacobo.hernandez"
+  is_system:
+    type: boolean
+    nullable: true
+    example: false

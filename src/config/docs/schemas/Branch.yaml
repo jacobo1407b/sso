@@ -1,0 +1,44 @@
+type: object
+properties:
+  branch_id:
+    type: string
+    example: BR001
+  name:
+    type: string
+    nullable: true
+    example: Sucursal Centro
+  is_primary:
+    type: boolean
+    nullable: true
+    example: true
+  location_id:
+    type: string
+    example: LOC123
+  street_name:
+    type: string
+    nullable: true
+    example: Av. Reforma
+  street_number:
+    type: string
+    nullable: true
+    example: '123'
+  neighborhood:
+    type: string
+    nullable: true
+    example: Juárez
+  city:
+    type: string
+    nullable: true
+    example: Ciudad de México
+  state:
+    type: string
+    nullable: true
+    example: CDMX
+  postal_code:
+    type: string
+    nullable: true
+    example: '06600'
+  country:
+    type: string
+    nullable: true
+    example: México

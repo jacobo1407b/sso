@@ -7,18 +7,24 @@ const SECRET_KEY = process.env.SECRET_KEY || 'tu_clave_secreta';
 
 
 const getClient = async (clientId: string, clientSecret: string) => {
-    //return clients.find(client => client.clientId === clientId && client.clientSecret === clientSecret);
+
     const result = await prisma.sSO_AUTH_CLIENTS_T.findFirst({
-        where: {
+        /*where: {
             AND: [
                 { client_id: clientId },
                 { client_secret: clientSecret }
             ]
-        },
+        },*/
+        where: { client_id: clientId },
         include: {
-            SSO_AUTH_GRANTS_T: {
+            SSO_AUTH_CLIENT_GRANTS_T: {
                 select: {
-                    grant_name: true // Solo traerá el campo GRANT_NAME
+                    created_date: true,
+                    SSO_AUTH_GRANTS_T: {
+                        select: {
+                            grant_code: true
+                        }
+                    }
                 }
             }
         }
@@ -32,34 +38,47 @@ const getClient = async (clientId: string, clientSecret: string) => {
         clientId: result?.client_id,
         app: result.app_name,
         clientSecret: result?.client_secret,
-        grants: result?.SSO_AUTH_GRANTS_T.map((x) => x.grant_name)
+        app_icon: result.client_icon_url,
+        app_type: result.app_type,
+        redirectUris: [result.redirect_callback],
+        grants: result.SSO_AUTH_CLIENT_GRANTS_T.map((x) => x.SSO_AUTH_GRANTS_T.grant_code)
     }
 };
 
 const saveToken = async (token: any, client: any, user: any) => {
     let refreshToken: string = '';
-    const accessToken = jwt.sign(
-        { userId: user?.id, clientId: client.client_id, scope: token.scope, username: user.email },
-        SECRET_KEY,
-        { expiresIn: Math.floor((token.accessTokenExpiresAt.getTime() - Date.now()) / 1000) }
-    );
+    let accessToken: string = '';
+
+    if (user.user_id) {
+        accessToken = jwt.sign(
+            { userId: user?.user_id, clientId: client.clientId, scope: token.scope, username: user.email, rols: user.roles },
+            SECRET_KEY,
+            { expiresIn: Math.floor((token.accessTokenExpiresAt.getTime() - Date.now()) / 1000) }
+        );
+    } else {
+        accessToken = jwt.sign(
+            { clientId: client.clientId, scope: token.scope, app: client.app, app_type: client.app_type, callback_url: client.callback_url, grants: client.grants },
+            SECRET_KEY,
+            { expiresIn: Math.floor((token.accessTokenExpiresAt.getTime() - Date.now()) / 1000) }
+        );
+    }
+
     if (token.refreshTokenExpiresAt) {
         refreshToken = jwt.sign(
-            { userId: user?.id, clientId: client.client_id },
+            { userId: user?.user_id, clientId: client.clientId },
             SECRET_KEY,
             { expiresIn: Math.floor((token.refreshTokenExpiresAt.getTime() - Date.now()) / 1000) }
         );
     }
 
-
     await prisma.sSO_AUTH_TOKEN_T.create({
         data: {
             client_id: client.clientId,
-            user_id: user?.id?.toString() ?? null,
+            user_id: user?.user_id?.toString() ?? null,
             access_token: accessToken,
             refresh_token: refreshToken,
             access_expires: token.accessTokenExpiresAt,
-            access_refresh: token.refreshTokenExpiresAt
+            refresh_expires: token.refreshTokenExpiresAt
         }
     });
     if (refreshToken) token.refreshToken = refreshToken;
@@ -74,7 +93,7 @@ const getAccessToken = async (accessToken: string) => {
         where: { access_token: accessToken }
     });
 
-    if (!tokenData) throw new OAuthError("Token no encontrado", {
+    if (!tokenData) throw new OAuthError("Token no valido", {
         code: 404,
         name: "TKN_FN"
     });
@@ -84,9 +103,9 @@ const getAccessToken = async (accessToken: string) => {
     return {
         user: payload,
         accessToken: tokenData.access_token,
-        refreshToken: tokenData.access_refresh,
+        refreshToken: tokenData.refresh_token,
         accessTokenExpiresAt: tokenData.access_expires,
-        refreshTokenExpiresAt: tokenData.refresh_token,
+        refreshTokenExpiresAt: tokenData.refresh_expires,
         token_type: "Bearer"
     }
 };
@@ -94,32 +113,108 @@ const getAccessToken = async (accessToken: string) => {
 const getRefreshToken = async (refreshToken: string) => {
     const tokenDataRefresh = await prisma.sSO_AUTH_TOKEN_T.findFirst({
         where: { refresh_token: refreshToken },
-        include: {
-            SSO_AUTH_CLIENTS_T: {
-                select: {
-                    client_id: true,
-                    client_secret: true
-                }
-            }
-        }
     });
 
     if (!tokenDataRefresh) throw new OAuthError("Refresh_token no valido", {
         code: 404,
         name: "RFS_FN"
     });
-
+    const clientPrisma = await prisma.sSO_AUTH_CLIENTS_T.findFirst({
+        where: { client_id: tokenDataRefresh?.client_id ?? "" },
+        select: {
+            client_id: true,
+            app_name: true,
+            client_secret: true,
+            client_icon_url: true,
+            app_type: true,
+            redirect_callback: true,
+            SSO_AUTH_CLIENT_GRANTS_T: {
+                select: {
+                    SSO_AUTH_GRANTS_T: {
+                        select: {
+                            grant_code: true
+                        }
+                    }
+                }
+            }
+        }
+    });
     const payload: any = jwt.verify(refreshToken, SECRET_KEY);
+
+    const userData = await prisma.sSO_AUTH_USERS_T.findFirst({
+        where: { user_id: payload.userId },
+        select: {
+            user_id: true,
+            username: true,
+            name: true,
+            last_name: true,
+            second_last_name: true,
+            email: true,
+            phone: true,
+            profile_picture: true,
+            status: true,
+            last_login: true,
+            biografia: true,
+            password: true,
+            SSO_AUTH_USER_PREFERENCES_T: true,
+            SSO_USER_BUSINESS_UNIT_T: {
+                select: {
+                    job_title: true,
+                    id: true,
+                    department: true,
+                    hire_date: true,
+                    branch_id: true
+                }
+            },
+            SSO_AUTH_ACCESS_T: {
+                select: {
+                    SSO_AUTH_ROLES_T: {
+                        select: {
+                            role_code: true,
+                            SSO_AUTH_ROLE_PERMISSIONS_T: {
+                                select: {
+                                    SSO_AUTH_PERMISSIONS_T: {
+                                        select: {
+                                            perm_code: true,
+                                            module: true,
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const { SSO_AUTH_USER_PREFERENCES_T, SSO_USER_BUSINESS_UNIT_T, SSO_AUTH_ACCESS_T, ...userWithoutPassword } = userData ?? {};
+
 
     return {
         client: {
-            clientId: tokenDataRefresh.client_id?.toString()
+            clientId: clientPrisma?.client_id,
+            app: clientPrisma?.app_name,
+            clientSecret: clientPrisma?.client_secret,
+            app_icon: clientPrisma?.client_icon_url,
+            app_type: clientPrisma?.app_type,
+            redirectUri: clientPrisma?.redirect_callback,
+            grants: clientPrisma?.SSO_AUTH_CLIENT_GRANTS_T.map((x) => x.SSO_AUTH_GRANTS_T.grant_code)
         },
         user: {
-            id: payload.userId.toString()
+            ...userWithoutPassword,
+            preferences: SSO_AUTH_USER_PREFERENCES_T,
+            userBusiness: SSO_USER_BUSINESS_UNIT_T,
+            roles: SSO_AUTH_ACCESS_T?.map((x) => {
+                const perm = x.SSO_AUTH_ROLES_T.SSO_AUTH_ROLE_PERMISSIONS_T.map((p) => `${p.SSO_AUTH_PERMISSIONS_T.perm_code}:${p.SSO_AUTH_PERMISSIONS_T.module}`)
+                return {
+                    role_code: x.SSO_AUTH_ROLES_T.role_code,
+                    policy_permission: perm
+                }
+            })
         },
         refreshToken: refreshToken,
-        accessToken: tokenDataRefresh.access_token.toString()
+        accessToken: tokenDataRefresh?.access_token?.toString()
     }
 };
 
@@ -130,7 +225,7 @@ const revokeToken = async (token: any) => {
 
     if (tokenData) {
         await prisma.sSO_AUTH_TOKEN_T.delete({
-            where: { id: tokenData.id }
+            where: { token_id: tokenData.token_id }
         });
         return true;
     }
@@ -140,18 +235,48 @@ const revokeToken = async (token: any) => {
 const getUser = async (username: any, passwordP: any) => {
     const user = await prisma.sSO_AUTH_USERS_T.findUnique({
         where: { email: username },
-        include: {
-            SSO_AUTH_ACCESS_L: {
-                include: {
+        select: {
+            user_id: true,
+            username: true,
+            name: true,
+            last_name: true,
+            second_last_name: true,
+            email: true,
+            phone: true,
+            profile_picture: true,
+            status: true,
+            last_login: true,
+            biografia: true,
+            password: true,
+            SSO_AUTH_USER_PREFERENCES_T: true,
+            SSO_USER_BUSINESS_UNIT_T: {
+                select: {
+                    job_title: true,
+                    id: true,
+                    department: true,
+                    hire_date: true,
+                    branch_id: true
+                }
+            },
+            SSO_AUTH_ACCESS_T: {
+                select: {
                     SSO_AUTH_ROLES_T: {
                         select: {
-                            rol_code: true,
-                            rol_name: true,
-                            id: true
+                            role_code: true,
+                            SSO_AUTH_ROLE_PERMISSIONS_T: {
+                                select: {
+                                    SSO_AUTH_PERMISSIONS_T: {
+                                        select: {
+                                            perm_code: true,
+                                            module: true,
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-            },
+            }
         }
     });
 
@@ -166,18 +291,29 @@ const getUser = async (username: any, passwordP: any) => {
         name: "USR_PASS"
     });
 
-    const { password, ...userWithoutPassword } = user;
-    const { SSO_AUTH_ACCESS_L, ...AllData } = userWithoutPassword;
+    const { SSO_AUTH_USER_PREFERENCES_T, SSO_USER_BUSINESS_UNIT_T, SSO_AUTH_ACCESS_T, password, ...userWithoutPassword } = user;
+
 
     const formattedUser = {
-        ...AllData,
-        roles: user?.SSO_AUTH_ACCESS_L.map((access) => access.SSO_AUTH_ROLES_T),
+        ...userWithoutPassword,
+        preferences: SSO_AUTH_USER_PREFERENCES_T,
+        userBusiness: SSO_USER_BUSINESS_UNIT_T,
+        roles: SSO_AUTH_ACCESS_T.map((x) => {
+            const perm = x.SSO_AUTH_ROLES_T.SSO_AUTH_ROLE_PERMISSIONS_T.map((p) => `${p.SSO_AUTH_PERMISSIONS_T.perm_code}:${p.SSO_AUTH_PERMISSIONS_T.module}`)
+            return {
+                role_code: x.SSO_AUTH_ROLES_T.role_code,
+                policy_permission: perm
+            }
+        })
     };
 
     return formattedUser
 };
 
 const verifyScope = (token: any, scope: any) => {
+    //console.log("model");
+    //console.log(token);
+    //console.log(scope)
     return true; // Simplified for this example
 };
 
@@ -186,16 +322,110 @@ const verifyScope = (token: any, scope: any) => {
 const getUserFromClient = (client: any) => {
     return {};
 }
-
-const getAuthorizationCode = (gilbertona: any) => {
+const saveAuthorizationCode = async (code: any, client: any, user: any) => {
+    await prisma.sSO_AUTH_AUTHORIZATION_CODES_T.create({
+        data: {
+            user_id: user.userId,
+            client_id: client.clientId,
+            authorization_code: code.authorizationCode,
+            expires_at: code.expiresAt
+        }
+    });
     return {
-        client: {},
-        user: {},
-        expiresAt: new Date('2025-06-05T20:49:47.853Z')
+        authorizationCode: code.authorizationCode,
+        expiresAt: code.expiresAt,
+        redirectUri: code.redirectUri,
+        scope: "",
+        client: { id: client.clientId },
+        user: { id: user.userId }
+    };
+}
+const getAuthorizationCode = async (code: any) => {
+    const codeDb = await prisma.sSO_AUTH_AUTHORIZATION_CODES_T.findFirst({
+        where: { authorization_code: code },
+        select: {
+            expires_at: true,
+            SSO_AUTH_CLIENTS_T: {
+                select: {
+                    client_id: true,
+                    redirect_callback: true
+                }
+            },
+            SSO_AUTH_USERS_T: {
+                select: {
+                    user_id: true,
+                    username: true,
+                    name: true,
+                    last_name: true,
+                    second_last_name: true,
+                    email: true,
+                    phone: true,
+                    profile_picture: true,
+                    status: true,
+                    last_login: true,
+                    biografia: true,
+                    SSO_AUTH_USER_PREFERENCES_T: true,
+                    SSO_USER_BUSINESS_UNIT_T: {
+                        select: {
+                            job_title: true,
+                            id: true,
+                            department: true,
+                            hire_date: true,
+                            branch_id: true
+                        }
+                    },
+                    SSO_AUTH_ACCESS_T: {
+                        select: {
+                            SSO_AUTH_ROLES_T: {
+                                select: {
+                                    role_code: true,
+                                    SSO_AUTH_ROLE_PERMISSIONS_T: {
+                                        select: {
+                                            SSO_AUTH_PERMISSIONS_T: {
+                                                select: {
+                                                    perm_code: true,
+                                                    module: true,
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+    if(!codeDb) throw new OAuthError("No se encontro un code", {
+        code: 404,
+        name: "CODE_FN"
+    });
+
+    const { SSO_AUTH_USER_PREFERENCES_T, SSO_USER_BUSINESS_UNIT_T, SSO_AUTH_ACCESS_T, ...userAll } = codeDb?.SSO_AUTH_USERS_T ?? {};
+    return {
+        client: codeDb?.SSO_AUTH_CLIENTS_T,
+        user: {
+            ...userAll,
+            preferences: SSO_AUTH_USER_PREFERENCES_T,
+            userBusiness: SSO_USER_BUSINESS_UNIT_T,
+            roles: SSO_AUTH_ACCESS_T?.map((x) => {
+                const perm = x.SSO_AUTH_ROLES_T.SSO_AUTH_ROLE_PERMISSIONS_T.map((p) => `${p.SSO_AUTH_PERMISSIONS_T.perm_code}:${p.SSO_AUTH_PERMISSIONS_T.module}`)
+                return {
+                    role_code: x.SSO_AUTH_ROLES_T.role_code,
+                    policy_permission: perm
+                }
+            })
+        },
+        expiresAt: codeDb?.expires_at,
+        code: code
     }
 }
 
-const revokeAuthorizationCode = () => {
+const revokeAuthorizationCode = async (code: any) => {
+    await prisma.sSO_AUTH_AUTHORIZATION_CODES_T.delete({
+        where: { authorization_code: code.code }
+    });
     return true
 }
 
@@ -209,5 +439,6 @@ export {
     verifyScope,
     getUserFromClient,
     getAuthorizationCode,
-    revokeAuthorizationCode
+    revokeAuthorizationCode,
+    saveAuthorizationCode
 }

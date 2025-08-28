@@ -1,0 +1,26 @@
+type: object
+properties:
+  id:
+    type: string
+    example: "grant-001"
+  description:
+    type: string
+    nullable: true
+    example: "Permite lectura"
+  grants_name:
+    type: string
+    nullable: true
+    example: "read"
+  icon_text:
+    type: string
+    nullable: true
+    example: "🔍"
+  grant_code:
+    type: string
+    nullable: true
+    example: "RD001"
+  created_date:
+    type: string
+    format: date-time
+    nullable: true
+    example: "2025-08-01T10:30:00Z"

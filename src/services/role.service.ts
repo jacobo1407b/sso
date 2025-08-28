@@ -3,49 +3,142 @@ import { OAuthError } from "oauth2-server";
 
 class RoleService {
     /** Obtiene todos los roles */
-    async getRoles(page = 1, pageSize = 20) {
-        return await prisma.sSO_AUTH_ROLES_T.findMany({
+    async getRoles(page = 1, pageSize = 20, rol_code?: string) {
+        const where: any = {};
+        if (rol_code) where.rol_code = rol_code;
+        const count = await prisma.sSO_AUTH_ROLES_T.count();
+        const roles = await prisma.sSO_AUTH_ROLES_T.findMany({
+            where,
             take: pageSize,
             skip: (page - 1) * pageSize
         });
+        return {
+            total: count,
+            items: roles
+        }
     }
 
 
     /** Obtiene un rol por ID */
     async getRoleById(roleId: string) {
-        return await prisma.sSO_AUTH_ROLES_T.findUnique({
-            where: { id: roleId },
+        const rol = await prisma.sSO_AUTH_ROLES_T.findUnique({
+            where: { id: roleId }
+        });
+        const users = await prisma.sSO_AUTH_ACCESS_T.findMany({
+            where: { role_id: roleId },
             include: {
-                SSO_AUTH_ACCESS_L: {
-                    where: { role_id: roleId },
-                    include: { SSO_AUTH_USERS_T: true }
+                SSO_AUTH_USERS_T: {
+                    select: {
+                        user_id: true,
+                        name: true,
+                        last_name: true,
+                        second_last_name: true,
+                        profile_picture: true,
+                        SSO_USER_BUSINESS_UNIT_T: {
+                            select: {
+                                job_title: true,
+                                department: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const rolMap = users.map((x) => {
+            return {
+                name: x.SSO_AUTH_USERS_T.name,
+                user_id: x.SSO_AUTH_USERS_T.user_id,
+                last_name: x.SSO_AUTH_USERS_T.last_name,
+                second_last_name: x.SSO_AUTH_USERS_T.second_last_name,
+                profile_picture: x.SSO_AUTH_USERS_T.profile_picture,
+                department: x.SSO_AUTH_USERS_T.SSO_USER_BUSINESS_UNIT_T?.department,
+                job_title: x.SSO_AUTH_USERS_T.SSO_USER_BUSINESS_UNIT_T?.job_title
+            }
+        });
+
+        return {
+            ...rol,
+            users: rolMap
+        }
+    }
+
+    async assigmentRol(rolId: string, users: Array<{ user: string }>, user: string) {
+        const mapUsr = users.map((x) => {
+            return {
+                user_id: x.user,
+                role_id: rolId,
+                created_by: user
+            }
+        });
+
+        await prisma.sSO_AUTH_ACCESS_T.createMany({
+            data: mapUsr
+        });
+    }
+
+    async revokeRoles(rolId: string, users: Array<{ user: string }>) {
+        const usrs = users.map((x) => x.user);
+        await prisma.sSO_AUTH_ACCESS_T.deleteMany({
+            where: {
+                role_id: rolId,
+                user_id: {
+                    in: usrs
                 }
             }
         });
     }
 
-    async assigmentRol(user: string, rols: Array<string>, id: string) {
-        const dto = rols.map((rl) => {
+    async createRol(data: {
+        rol_name: string;
+        rol_code: string;
+        description: string;
+    }, usersList: Array<string>, user: string) {
+        const findRol = await prisma.sSO_AUTH_ROLES_T.findFirst({
+            where: { role_code: data.rol_code }
+        });
+
+        if (findRol !== null) throw new OAuthError(`Ya existe un rol con el codigo ${data.rol_code}`, {
+            code: 400,
+            name: "ROL_EXIST"
+        });
+
+        const rol = await prisma.sSO_AUTH_ROLES_T.create({
+            data
+        });
+        const rolsAssigment = usersList.map((x) => {
             return {
-                user_id: id,
-                role_id: rl,
-                created_by: user,
-                last_update_by: user
+                user_id: x,
+                role_id: rol.id,
+                created_by: user
             }
         });
-        await prisma.sSO_AUTH_ACCESS_L.createMany({
-            data: dto
+
+        await prisma.sSO_AUTH_ACCESS_T.createMany({
+            data: rolsAssigment
+        });
+
+        return rol;
+
+    }
+
+    async deleteRol(idRol: string) {
+        const rol = await prisma.sSO_AUTH_ROLES_T.findUnique({
+            where: { id: idRol }
+        });
+        if (rol?.is_system) throw new OAuthError('No se puede eliminar un rol de sistema', {
+            code: 400,
+            name: "ROL_DEL"
+        });
+        await prisma.sSO_AUTH_ACCESS_T.deleteMany({
+            where: { role_id: idRol }
+        });
+        await prisma.sSO_AUTH_ROLES_T.delete({
+            where: { id: idRol }
         });
     }
 
-    async revokeRoles(user: string, rols: Array<string>) {
-        await prisma.sSO_AUTH_ACCESS_L.deleteMany({
-            where: {
-                user_id: user,
-                role_id: { in: rols }
-            }
-        });
-    }
+
 
 }
 

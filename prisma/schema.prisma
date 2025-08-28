@@ -7,100 +7,223 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model SSO_AUTH_ACCESS_L {
+model SSO_AUTH_ACCESS_T {
   user_id          String           @db.Uuid
   role_id          String           @db.Uuid
-  created_by       String           @db.VarChar(50)
+  created_by       String?          @db.VarChar(50)
   created_date     DateTime?        @default(now()) @db.Timestamp(6)
-  last_update_by   String           @db.VarChar(50)
-  last_update_date DateTime?        @default(now()) @db.Timestamp(6)
-  SSO_AUTH_ROLES_T SSO_AUTH_ROLES_T @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_role")
-  SSO_AUTH_USERS_T SSO_AUTH_USERS_T @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+  SSO_AUTH_ROLES_T SSO_AUTH_ROLES_T @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  SSO_AUTH_USERS_T SSO_AUTH_USERS_T @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([user_id, role_id], map: "pk_sso_auth_access")
-  @@index([user_id, role_id], map: "idx_sso_auth_access")
+  @@id([user_id, role_id])
+  @@index([role_id], map: "idx_access_by_role")
+  @@index([user_id], map: "idx_access_by_user")
 }
 
 model SSO_AUTH_CLIENTS_T {
-  app_name          String              @unique(map: "idx_sso_client_name") @db.VarChar(200)
-  client_id         String              @id @default(dbgenerated("encode(gen_random_bytes(32), 'hex'::text)")) @db.VarChar(100)
-  client_secret     String?             @default(dbgenerated("encode(gen_random_bytes(16), 'hex'::text)")) @db.VarChar(100)
-  created_date      DateTime?           @default(now()) @db.Timestamp(6)
-  SSO_AUTH_GRANTS_T SSO_AUTH_GRANTS_T[]
-  SSO_AUTH_TOKEN_T  SSO_AUTH_TOKEN_T[]
+  client_id                      String                           @id @db.VarChar(100)
+  app_name                       String?                          @db.VarChar(50)
+  client_secret                  String?                          @default(dbgenerated("encode(gen_random_bytes(16), 'hex'::text)"))
+  description                    String?
+  redirect_callback              String?
+  scopes                         String?
+  is_active                      Boolean?                         @default(true)
+  app_type                       String?                          @db.VarChar(20)
+  client_icon_url                String?
+  created_by                     String?                          @db.VarChar(50)
+  SSO_AUTH_AUTHORIZATION_CODES_T SSO_AUTH_AUTHORIZATION_CODES_T[]
+  SSO_AUTH_CLIENT_GRANTS_T       SSO_AUTH_CLIENT_GRANTS_T[]
 
-  @@index([client_id, client_secret], map: "idx_sso_client_id")
+  @@index([is_active], map: "idx_clients_active")
+  @@index([app_name], map: "idx_clients_app_name")
+  @@index([app_type], map: "idx_clients_app_type")
+  @@index([client_id, client_secret], map: "idx_clients_client_secret")
 }
 
-model SSO_AUTH_EMPLOYEE_INFO_T {
-  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id          String           @db.Uuid @map("user_id")
-  job_title        String?          @db.VarChar(100)
-  department       String?          @db.VarChar(50)
-  company_name     String?          @db.VarChar(100)
-  location         String?          @db.VarChar(100)
-  hire_date        DateTime?        @db.Timestamp(6)
-  SSO_AUTH_USERS_T SSO_AUTH_USERS_T @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+model SSO_AUTH_CLIENT_GRANTS_T {
+  client_id          String             @db.VarChar(100)
+  grant_id           String             @db.Uuid
+  created_date       DateTime?          @default(now()) @db.Timestamp(6)
+  SSO_AUTH_CLIENTS_T SSO_AUTH_CLIENTS_T @relation(fields: [client_id], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
+  SSO_AUTH_GRANTS_T  SSO_AUTH_GRANTS_T  @relation(fields: [grant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([user_id], map: "idx_sso_users_info")
+  @@id([client_id, grant_id])
 }
 
 model SSO_AUTH_GRANTS_T {
-  id                 String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  client_id          String             @db.VarChar(100)
-  grant_name         String             @db.VarChar(50)
-  created_date       DateTime?          @default(now()) @db.Timestamp(6)
-  SSO_AUTH_CLIENTS_T SSO_AUTH_CLIENTS_T @relation(fields: [client_id], references: [client_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_grants")
+  id                       String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  grants_name              String?                    @db.VarChar(100)
+  description              String?
+  icon_text                String?                    @db.VarChar(50)
+  grant_code               String?                    @db.VarChar(50)
+  SSO_AUTH_CLIENT_GRANTS_T SSO_AUTH_CLIENT_GRANTS_T[]
 
-  @@index([client_id], map: "idx_sso_grants_cl")
-  @@index([grant_name], map: "idx_sso_grants_nm")
+  @@index([grant_code], map: "idx_grants_code")
 }
 
 model SSO_AUTH_ROLES_T {
-  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  rol_name          String              @unique @db.VarChar(50)
-  rol_code          String              @unique @db.VarChar(50)
-  created_by        String              @db.VarChar(50)
-  created_date      DateTime?           @default(now()) @db.Timestamp(6)
-  last_update_by    String              @db.VarChar(50)
-  last_update_date  DateTime?           @default(now()) @db.Timestamp(6)
-  SSO_AUTH_ACCESS_L SSO_AUTH_ACCESS_L[]
+  id                          String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role_name                   String?                       @db.VarChar(50)
+  role_code                   String?                       @db.VarChar(50)
+  description                 String?
+  created_by                  String?                       @db.VarChar(100)
+  created_date                DateTime?                     @default(now()) @db.Timestamp(6)
+  is_system                   Boolean?                      @default(false)
+  module                      String?                       @db.VarChar(50)
+  SSO_AUTH_ACCESS_T           SSO_AUTH_ACCESS_T[]
+  SSO_AUTH_ROLE_PERMISSIONS_T SSO_AUTH_ROLE_PERMISSIONS_T[]
+
+  @@index([role_code], map: "idx_roles_code")
 }
 
 model SSO_AUTH_TOKEN_T {
-  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id            String?             @db.Uuid
-  client_id          String?             @db.VarChar(100)
-  access_token       String              @unique(map: "idx_sso_auth_token") @db.VarChar(600)
-  refresh_token      String              @unique(map: "idx_sso_auth_refresh") @db.VarChar(600)
-  access_expires     DateTime?           @db.Timestamp(6)
-  access_refresh     DateTime?           @db.Timestamp(6)
-  SSO_AUTH_CLIENTS_T SSO_AUTH_CLIENTS_T? @relation(fields: [client_id], references: [client_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_client")
-  SSO_AUTH_USERS_T   SSO_AUTH_USERS_T?   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usr")
+  token_id         String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id          String?           @db.Uuid
+  client_id        String?           @db.VarChar(100)
+  access_token     String?
+  refresh_token    String?
+  access_expires   DateTime?         @db.Timestamp(6)
+  refresh_expires  DateTime?         @db.Timestamp(6)
+  agent            String?           @db.VarChar(800)
+  ip_address       String?           @db.VarChar(45)
+  created_date     DateTime?         @default(now()) @db.Timestamp(6)
+  SSO_AUTH_USERS_T SSO_AUTH_USERS_T? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([client_id], map: "idx_sso_auth_clien")
-  @@index([user_id], map: "idx_sso_auth_user")
+  @@index([access_token], map: "idx_tokens_access_token")
+  @@index([client_id], map: "idx_tokens_client_id")
+  @@index([created_date], map: "idx_tokens_created_date")
+  @@index([refresh_expires], map: "idx_tokens_refresh_expires")
+  @@index([refresh_token], map: "idx_tokens_refresh_token")
+  @@index([user_id], map: "idx_tokens_user")
 }
 
 model SSO_AUTH_USERS_T {
-  id                       String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  username                 String                     @db.VarChar(50)
-  name                     String                     @db.VarChar(100)
-  last_name                String                     @db.VarChar(100)
-  email                    String                     @unique @db.VarChar(150)
-  phone                    String?                    @db.VarChar(20)
-  password                 String
-  profile_picture          String?
-  status                   String?                    @default("ACTIVE") @db.VarChar(20)
-  last_login               DateTime?                  @db.Timestamp(6)
-  reset_token              String?
-  verified                 Boolean?                   @default(false)
-  bio                      String?
-  created_date             DateTime?                  @default(now()) @db.Timestamp(6)
-  updated_date             DateTime?                  @default(now()) @db.Timestamp(6)
-  SSO_AUTH_ACCESS_L        SSO_AUTH_ACCESS_L[]
-  SSO_AUTH_EMPLOYEE_INFO_T SSO_AUTH_EMPLOYEE_INFO_T[]
-  SSO_AUTH_TOKEN_T         SSO_AUTH_TOKEN_T[]
+  user_id                        String                           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username                       String                           @unique @db.VarChar(30)
+  name                           String?                          @db.VarChar(30)
+  last_name                      String?                          @db.VarChar(50)
+  second_last_name               String?                          @db.VarChar(50)
+  email                          String?                          @unique @db.VarChar(50)
+  phone                          String?                          @db.VarChar(15)
+  password                       String
+  profile_picture                String?
+  status                         String?                          @db.VarChar(10)
+  last_login                     DateTime?                        @db.Timestamp(6)
+  reset_token                    String?                          @db.VarChar(10)
+  biografia                      String?
+  created_date                   DateTime?                        @default(now()) @db.Timestamp(6)
+  password_recovery_date         DateTime?                        @db.Timestamp(6)
+  last_password_change           String?                          @db.VarChar(50)
+  authorization_code             String?                          @db.VarChar(20)
+  id_user_bu                     String?                          @db.Uuid
+  id_user_preference             String?                          @db.Uuid
+  SSO_AUTH_ACCESS_T              SSO_AUTH_ACCESS_T[]
+  SSO_AUTH_AUTHORIZATION_CODES_T SSO_AUTH_AUTHORIZATION_CODES_T[]
+  SSO_AUTH_TOKEN_T               SSO_AUTH_TOKEN_T[]
+  SSO_USER_BUSINESS_UNIT_T       SSO_USER_BUSINESS_UNIT_T?        @relation(fields: [id_user_bu], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  SSO_AUTH_USER_PREFERENCES_T    SSO_AUTH_USER_PREFERENCES_T?     @relation(fields: [id_user_preference], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([last_login], map: "idx_sso_users_last_login")
+  @@index([authorization_code], map: "idx_sso_users_authorization_code")
+  @@index([created_date], map: "idx_sso_users_created_date")
+  @@index([email], map: "idx_sso_users_email")
+  @@index([status], map: "idx_sso_users_status")
+  @@index([username], map: "idx_sso_users_username")
+}
+
+model SSO_AUTH_USER_PREFERENCES_T {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  theme            String?            @db.VarChar(10)
+  notifications    Boolean?           @default(true)
+  timezone         String?            @db.VarChar(50)
+  lang             String?            @db.VarChar(20)
+  SSO_AUTH_USERS_T SSO_AUTH_USERS_T[]
+}
+
+model SSO_BUSINESS_LOCATIONS_T {
+  location_id                  String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  street_name                  String?                        @db.VarChar(100)
+  street_number                String?                        @db.VarChar(20)
+  neighborhood                 String?                        @db.VarChar(10)
+  city                         String?                        @db.VarChar(100)
+  state                        String?                        @db.VarChar(100)
+  postal_code                  String?                        @db.VarChar(10)
+  country                      String?                        @db.VarChar(100)
+  SSO_BUSINESS_UNIT_BRANCHES_T SSO_BUSINESS_UNIT_BRANCHES_T[]
+}
+
+model SSO_BUSINESS_UNITS_T {
+  unit_id                      String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                         String?                        @db.VarChar(50)
+  code                         String?                        @db.VarChar(50)
+  description                  String?
+  status                       String?                        @db.VarChar(20)
+  created_date                 String?                        @db.VarChar(50)
+  img_url                      String?
+  SSO_BUSINESS_UNIT_BRANCHES_T SSO_BUSINESS_UNIT_BRANCHES_T[]
+  SSO_USER_BUSINESS_UNIT_T     SSO_USER_BUSINESS_UNIT_T[]
+
+  @@index([code], map: "idx_business_units_code")
+  @@index([status], map: "idx_business_units_status")
+}
+
+model SSO_BUSINESS_UNIT_BRANCHES_T {
+  branch_id                String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  unit_id                  String?                    @db.Uuid
+  name                     String?                    @db.VarChar(100)
+  location_id              String?                    @db.Uuid
+  is_primary               Boolean?                   @default(false)
+  SSO_BUSINESS_LOCATIONS_T SSO_BUSINESS_LOCATIONS_T?  @relation(fields: [location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction)
+  SSO_BUSINESS_UNITS_T     SSO_BUSINESS_UNITS_T?      @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction)
+  SSO_USER_BUSINESS_UNIT_T SSO_USER_BUSINESS_UNIT_T[]
+
+  @@index([location_id], map: "idx_branch_location")
+  @@index([name], map: "idx_branch_name")
+  @@index([unit_id, is_primary], map: "idx_unit_branch_primary")
+}
+
+model SSO_USER_BUSINESS_UNIT_T {
+  id                           String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  unit_id                      String?                       @db.Uuid
+  job_title                    String?                       @db.VarChar(20)
+  department                   String?                       @db.VarChar(40)
+  hire_date                    DateTime?                     @db.Timestamp(6)
+  branch_id                    String?                       @db.Uuid
+  end_date                     DateTime?                     @db.Timestamp(6)
+  SSO_AUTH_USERS_T             SSO_AUTH_USERS_T[]
+  SSO_BUSINESS_UNIT_BRANCHES_T SSO_BUSINESS_UNIT_BRANCHES_T? @relation(fields: [branch_id], references: [branch_id], onDelete: NoAction, onUpdate: NoAction)
+  SSO_BUSINESS_UNITS_T         SSO_BUSINESS_UNITS_T?         @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model SSO_AUTH_PERMISSIONS_T {
+  id                          String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  perm_name                   String                        @db.VarChar(70)
+  perm_code                   String                        @unique @db.VarChar(50)
+  description                 String?
+  action                      String?                       @db.VarChar(30)
+  created_by                  String?                       @db.VarChar(50)
+  created_date                DateTime?                     @default(now()) @db.Timestamp(6)
+  IS_SYSTEM                   Boolean?                      @default(false)
+  SSO_AUTH_ROLE_PERMISSIONS_T SSO_AUTH_ROLE_PERMISSIONS_T[]
+}
+
+model SSO_AUTH_ROLE_PERMISSIONS_T {
+  role_id                String                 @db.Uuid
+  permission_id          String                 @db.Uuid
+  granted_by             String?                @db.VarChar(50)
+  granted_date           DateTime?              @default(now()) @db.Timestamp(6)
+  SSO_AUTH_PERMISSIONS_T SSO_AUTH_PERMISSIONS_T @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  SSO_AUTH_ROLES_T       SSO_AUTH_ROLES_T       @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([role_id, permission_id])
+}
+
+model SSO_AUTH_AUTHORIZATION_CODES_T {
+  id                 String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id            String             @db.Uuid
+  client_id          String             @db.VarChar(100)
+  authorization_code String             @unique @db.VarChar(50)
+  expires_at         DateTime           @db.Timestamp(6)
+  created_date       DateTime?          @default(now()) @db.Timestamp(6)
+  SSO_AUTH_CLIENTS_T SSO_AUTH_CLIENTS_T @relation(fields: [client_id], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
+  SSO_AUTH_USERS_T   SSO_AUTH_USERS_T   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }

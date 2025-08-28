@@ -1,0 +1,30 @@
+type: object
+properties:
+  unit_id:
+    type: string
+    example: unit-001
+  name:
+    type: string
+    nullable: true
+    example: Unidad Administrativa
+  code:
+    type: string
+    nullable: true
+    example: UA-001
+  description:
+    type: string
+    nullable: true
+    example: Unidad encargada de operaciones internas
+  created_date:
+    type: string
+    format: date-time
+    nullable: true
+    example: '2025-08-22T10:00:00Z'
+  img_url:
+    type: string
+    nullable: true
+    example: 'https://miapp.com/unit-icon.png'
+  branchs:
+    type: array
+    items:
+      $ref: ./Branch.yaml

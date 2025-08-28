@@ -6,12 +6,14 @@ export const getRolsController = async (req: Request, res: Response) => {
     try {
         const page = Number(req.query.page ?? 1);
         const size = Number(req.query.size ?? 20);
-        const rols = await roleService.getRoles(page, size);
+        const cod = String(req.query.rol_code);
+        const rols = await roleService.getRoles(page, size, cod);
 
         res.status(200).json({
             code: 200,
             statusCode: 200,
-            data: rols
+            data: rols.items,
+            total: rols.total
         });
     } catch (error: any) {
         res.status(error.statusCode || 500).json(error);
@@ -22,24 +24,10 @@ export const getRolsUniqID = async (req: Request, res: Response) => {
     try {
         const rol = await roleService.getRoleById(req.params.id);
 
-        const users = rol?.SSO_AUTH_ACCESS_L.map((x) => {
-            const { password, ...alldata } = x.SSO_AUTH_USERS_T
-            return alldata;
-        });
         res.status(200).json({
             code: 200,
             statusCode: 200,
-            data: {
-                id: rol?.id,
-                rol_name: rol?.rol_name,
-                rol_code: rol?.rol_code,
-                created_by: rol?.created_by,
-                created_date: rol?.created_date,
-                last_update_by: rol?.last_update_by,
-                last_update_date: rol?.last_update_date,
-                users
-
-            }
+            data: rol
         });
     } catch (error: any) {
         res.status(error.statusCode || 500).json(error);
@@ -48,7 +36,18 @@ export const getRolsUniqID = async (req: Request, res: Response) => {
 
 export const assigmentController = async (req: Request, res: Response) => {
     try {
-        await roleService.assigmentRol(req.user?.username ?? "", req.body.rols, req.params.id);
+
+        const asigment: Array<any> = req.body.rols.filter((x: any) => x.type === "CREATE");
+        const revokUser: Array<any> = req.body.rols.filter((x: any) => x.type === "DELETE");
+
+        if (asigment.length !== 0) {
+            await roleService.assigmentRol(req.params.id, asigment, req.user?.username ?? "");
+        }
+
+        if (revokUser.length !== 0) {
+            await roleService.revokeRoles(req.params.id, revokUser);
+        }
+
         res.status(200).json({
             code: 201,
             statusCode: 201,
@@ -59,14 +58,16 @@ export const assigmentController = async (req: Request, res: Response) => {
     }
 }
 
-export const revokeController = async (req: Request, res: Response) => {
+export const createRolController = async (req: Request, res: Response) => {
     try {
-        await roleService.revokeRoles(req.user?.username ?? "", req.body.rols);
-        res.status(200).json({
+        const rol = await roleService.createRol(req.body.rol, req.body.users, req.user?.username ?? "");
+
+        res.status(201).json({
             code: 201,
             statusCode: 201,
-            data: null
+            data: rol
         });
+
     } catch (error: any) {
         res.status(error.statusCode || 500).json(error);
     }

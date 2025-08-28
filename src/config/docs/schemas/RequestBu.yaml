@@ -1,0 +1,72 @@
+BusinessUnitInput:
+  type: object
+  required:
+    - name
+    - code
+    - description
+  properties:
+    name:
+      type: string
+      example: Unidad Norte
+    code:
+      type: string
+      example: UN001
+    description:
+      type: string
+      example: Unidad operativa en la zona norte
+BranchInput:
+  type: object
+  required:
+    - branch
+    - location
+  properties:
+    branch:
+      $ref: '#/components/schemas/BranchDetails'
+    location:
+      $ref: '#/components/schemas/Location'
+components:
+  schemas:
+    BranchDetails:
+      type: object
+      required:
+        - name
+        - is_primary
+      properties:
+        name:
+          type: string
+          example: Sucursal Azcapotzalco
+        is_primary:
+          type: boolean
+          example: true
+
+    Location:
+      type: object
+      properties:
+        street_name:
+          type: string
+          nullable: true
+          example: Av. Reforma
+        street_number:
+          type: string
+          nullable: true
+          example: '123'
+        neighborhood:
+          type: string
+          nullable: true
+          example: Centro
+        city:
+          type: string
+          nullable: true
+          example: Ciudad de México
+        state:
+          type: string
+          nullable: true
+          example: CDMX
+        postal_code:
+          type: string
+          nullable: true
+          example: '02000'
+        country:
+          type: string
+          nullable: true
+          example: México

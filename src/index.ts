@@ -1,4 +1,5 @@
 import express from "express";
+import { Request, Response,NextFunction } from "express";
 import pool from "@config/db";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -8,6 +9,7 @@ import userRoutes from "@routes/user.routes";
 import oauthRoutes from "@routes/oauth.routes";
 import clientRouter from "@routes/client.router";
 import rolsRouter from "@routes/role.router";
+import companyRoutes from "@routes/company.router";
 
 import { authenticateRequest } from "@middleware/authMiddleware";
 import { startConfig } from "@config/oauth";
@@ -25,11 +27,16 @@ setupSwagger(app);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", clientRouter);
 app.use("/api/v1", rolsRouter);
+app.use("/api/v1", companyRoutes)
 app.use('/oauth', oauthRoutes);
 
 //function can only be invoked for an authenticated request
 app.get('/secure', authenticateRequest, (req, res) => {
     res.send('Secure data');
+});
+app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
+    console.error(err);
+    res.status(err.statusCode || 500).json(err);
 });
 
 const PORT = process.env.PORT || 5000;

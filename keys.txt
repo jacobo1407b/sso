@@ -1,0 +1,5 @@
+📧 Email: admin@admin.com
+🔑 Password: $FBHp94DEyUq2
+📱 APP: SSO
+🆔 CLIENT: sso:1754883819643:web:e3769295ca4efbb85789a5
+🔐 SECRET: e2343f84d66086c7af8b44a3eea01d4a

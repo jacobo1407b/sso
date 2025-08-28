@@ -1,3 +1,7 @@
+type rols = Array<{
+  role_code: string;
+  policy_permission: Array<string>
+}>
 
 declare namespace Express {
   interface Request {
@@ -5,7 +9,9 @@ declare namespace Express {
       userId: string,
       username: string,
       iat: number,
-      exp: number
+      exp: number,
+      client_id: string,
+      rols: rols
     };
   }
 }

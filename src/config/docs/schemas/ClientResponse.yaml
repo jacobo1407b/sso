@@ -1,0 +1,60 @@
+ClientSchema:
+  type: object
+  properties:
+    client_secret:
+      type: string
+      nullable: true
+      example: "abc123secret"
+    client_id:
+      type: string
+      example: "client-001"
+    app_name:
+      type: string
+      nullable: true
+      example: "Mi App"
+    description:
+      type: string
+      nullable: true
+      example: "Aplicación de ejemplo"
+    redirect_callback:
+      type: string
+      nullable: true
+      example: "https://miapp.com/callback"
+    scopes:
+      type: string
+      nullable: true
+      example: "read write"
+    is_active:
+      type: boolean
+      nullable: true
+      example: true
+    app_type:
+      type: string
+      nullable: true
+      example: "public"
+    client_icon_url:
+      type: string
+      nullable: true
+      example: "https://miapp.com/icon.png"
+    created_by:
+      type: string
+      nullable: true
+      example: "admin"
+    grants:
+      type: array
+      items:
+        $ref: './Grant.yaml'
+
+ClientReq:
+  type: object
+  properties:
+    file:
+      type: string
+      format: binary
+      description: Archivo adjunto del cliente
+    client:
+      type: string
+      description: JSON serializado como string. Ejemplo
+  required:
+    - file
+    - client

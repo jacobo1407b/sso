@@ -1,117 +1,159 @@
 import { Request, Response } from "express";
 import { clientService } from "@services/client.service";
 import { OAuthError } from "oauth2-server";
+import { getStorageProvider } from "@services/storage.factory";
 
-//GET
+
+//GET obtener detalles de un app
 export const getClientByIdController = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
         const data = await clientService.getClientById(id);
-        const grants = data?.SSO_AUTH_GRANTS_T;
+
         res.status(200).json({
             code: 200,
             statusCode: 200,
-            data: {
-                grants,
-                clientId: data?.client_id,
-                app: data?.app_name,
-                clientSecret: data?.client_secret,
-                createdDate: data?.created_date
-            }
+            data
         });
     } catch (e: any) {
         res.status(e.statusCode || 500).json(e);
     }
 }
-//POST
+//POST Crear un app y sus grants
 export const createClientController = async (req: Request, res: Response) => {
     try {
-        const { app, grants } = req.body;
-        const create = await clientService.createClient(app, grants);
+        const { app, grants, data } = JSON.parse(req.body.payload);
+        let dataSend = data;
+
+        const storage = getStorageProvider();
+
+
+        if (req.file) {
+            const { publicId } = await storage.uploadImage(req.file.buffer, {
+                folder: "app"
+            });
+            dataSend = {
+                ...JSON.parse(req.body.payload).data,
+                client_icon_url: publicId
+            }
+        }
+        const create = await clientService.createClient(app, grants, dataSend);
+
         res.status(201).json({
             code: 201,
             statusCode: 201,
-            data: {
-                clientId: create?.client_id,
-                app: create?.app_name,
-                clientSecret: create?.client_secret,
-                createdDate: create?.created_date,
-                grants: create.grants,
-            }
+            data: create
         });
+
     } catch (error: any) {
         res.status(error.statusCode || 500).json(error);
     }
 }
-//GET
+//GET obtener todas las apps
 export const getClientsController = async (req: Request, res: Response) => {
     try {
         const pageNum = Number(req.query.page) || 1;
         const pageSize = Number(req.query.pageSize) || 20;
-        const data = await clientService.getClients(pageNum, pageSize);
+        let filters: any = {};
+        if (req.query.q) {
+            filters = String(req.query.q).split(';').reduce((acc: any, pair) => {
+                const [key, value] = pair.split('=');
+                acc[key] = value;
+                return acc;
+            }, {});
+        }
+        const data = await clientService.getClients(pageNum, pageSize, filters);
 
-        const clients = data.data.map((x) => {
-            const grants = x.SSO_AUTH_GRANTS_T;
-            return {
-                grants,
-                clientId: x?.client_id,
-                app: x?.app_name,
-                clientSecret: x?.client_secret,
-                createdDate: x?.created_date
-            }
-        });
         res.status(200).json({
             code: 200,
             statusCode: 200,
-            data: clients,
+            data: data.data,
             page: pageNum,
             pageSize,
             totalCount: data.totalCount
         });
     } catch (error: any) {
-        console.log(error)
         res.status(error.statusCode || 500).json(error);
     }
 }
-//POST
+//POST set y revook granst
 export const createGrantsController = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
         const { grantsType } = req.body;
-        const data = await clientService.setGrants(id, grantsType);
+        let dataResp = null;
+
+        const deletesArr: Array<any> = grantsType.filter((x: any) => x.type === "DELETE");
+        const updtArr: Array<any> = grantsType.filter((x: any) => x.type === "UPDATE");
+        if (deletesArr.length !== 0) {
+            dataResp = await clientService.revokeGrants(id, deletesArr);
+        }
+        if (updtArr.length !== 0) {
+            dataResp = await clientService.setGrants(id, updtArr);
+        }
+
 
         res.status(201).json({
             code: 201,
             statusCode: 201,
-            data: {
-                grants: data?.SSO_AUTH_GRANTS_T ?? [],
-                clientId: data?.client_id,
-                app: data?.app_name,
-                clientSecret: data?.client_secret,
-                createdDate: data?.created_date
-            }
+            data: dataResp
         });
     } catch (error: any) {
         res.status(error.statusCode || 500).json(error);
     }
 }
 
-export const delteClientController = async (req: Request, res: Response) => {
+export const updateClientController = async (req: Request, res: Response) => {
     try {
-        const data = await clientService.getClientById(req.params.id);
-        if (data?.app_name === "SSO") throw new OAuthError(`No se puede eliminar este recurso`, {
-            code: 409,
-            name: 'CLT_DEL'
-        })
+        const storage = getStorageProvider();
+        let payload = JSON.parse(req.body.payload);
+        if (req.file) {
+            const { publicId } = await storage.uploadImage(req.file.buffer, {
+                folder: "app",
+                public_id: req.query.pub,
+                overwrite: true,
+                invalidate: true
+            });
+            payload = {
+                ...JSON.parse(req.body.payload),
+                client_icon_url: publicId
+            }
+        }
+        const updateClient = await clientService.updateClient(req.params.id, payload);
+        res.status(201).json({
+            code: 201,
+            statusCode: 201,
+            data: updateClient
+        });
 
+    } catch (error: any) {
+        res.status(error.statusCode || 500).json(error);
+    }
+}
+
+export const deleteClientController = async (req: Request, res: Response) => {
+    try {
         await clientService.deleteClient(req.params.id);
         res.status(201).json({
             code: 201,
             statusCode: 201,
             data: null
         });
+
     } catch (error: any) {
         res.status(error.statusCode || 500).json(error);
     }
+}
 
+export const listGrantsController = async (req: Request, res: Response) => {
+    try {
+        const list = await clientService.getGrants();
+        res.status(200).json({
+            code: 200,
+            statusCode: 200,
+            data: list
+        });
+    } catch (error: any) {
+        res.status(error.statusCode || 500).json(error);
+    }
 }

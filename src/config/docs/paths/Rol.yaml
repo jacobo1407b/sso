@@ -1,0 +1,169 @@
+GetRoles:
+  get:
+    summary: Obtener lista de roles con paginación y filtro por código
+    tags:
+      - Roles
+    security:
+      - OAuth2: []
+    parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+      - name: rol_code
+        in: query
+        required: false
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Lista de roles obtenida exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 200
+                statusCode:
+                  type: integer
+                  example: 200
+                total:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    $ref: '../schemas/Rol.yaml'
+
+GetRoleById:
+  get:
+    summary: Obtener un rol por su identificador
+    tags:
+      - Roles
+    security:
+      - OAuth2: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Rol obtenido exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 200
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  allOf:
+                    - $ref: '../schemas/Rol.yaml'
+                    - type: object
+                      properties:
+                        users:
+                          type: array
+                          items:
+                            $ref: '../schemas/RequestRols.yaml#/UserItem'
+
+PostRoleAssignment:
+  post:
+    summary: Asignar o revocar roles a un usuario
+    tags:
+      - Roles
+    security:
+      - OAuth2: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/RequestRols.yaml#/RequestGrantRol'
+    responses:
+      '201':
+        description: Roles asignados o revocados exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 201
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: string
+                  nullable: true
+                  example: null
+
+PostRole:
+  post:
+    summary: Crear un nuevo rol y asignarlo a usuarios
+    tags:
+      - Roles
+    security:
+      - OAuth2: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              rol:
+                type: object
+                properties:
+                  rol_name:
+                    type: string
+                    example: "Administrador"
+                  rol_code:
+                    type: string
+                    example: "ADMIN"
+                  description:
+                    type: string
+                    example: "Rol con acceso completo al sistema"
+              users:
+                type: array
+                items:
+                  type: string
+                  example: "jacobo.hernandez"
+    responses:
+      '201':
+        description: Rol creado exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 201
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  $ref: '../schemas/Rol.yaml'

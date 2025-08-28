@@ -1,0 +1,48 @@
+AssignGrants:
+  post:
+    summary: Asignar o revocar grants
+    tags:
+      - Client
+    security:
+      - OAuth2: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: ID del cliente a asignar o revocar grants
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              grantsType:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      example: "DELETE | UPDATE"
+                    grant:
+                      type: string
+                      example: "2346578676"
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 200
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  $ref: '../schemas/ClientResponse.yaml#/ClientSchema'

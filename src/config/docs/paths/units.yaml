@@ -1,0 +1,263 @@
+GetCompany:
+  summary: Obtiene una empresa por ID
+  tags:
+    - Company
+  security:
+    - OAuth2: []
+  parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: string
+      description: ID de la empresa a consultar
+  responses:
+    '200':
+      description: Empresa encontrada exitosamente
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 200
+              statusCode:
+                type: integer
+                example: 200
+              data:
+                $ref: '../schemas/Unit.yaml'
+GeUnits:
+  get:
+    summary: Obtener todas la unidades con sucursales
+    tags:
+      - Company
+    security:
+      - OAuth2: []
+    responses:
+      '200':
+        description: Respuesta exitosa con la lista de rolos
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 200
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  type: array
+                  items:
+                    $ref: '../schemas/Unit.yaml'
+PostCompany:
+  post:
+    summary: Crear una nueva unidad de negocio con sucursales
+    tags:
+      - Company
+    security:
+      - OAuth2: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              bu:
+                $ref: '../schemas/RequestBu.yaml#/BusinessUnitInput'
+              branch:
+                type: array
+                items:
+                  $ref: '../schemas/RequestBu.yaml#/BranchInput'
+    responses:
+      '201':
+        description: Unidad de negocio creada exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 201
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  $ref: '../schemas/Unit.yaml'
+PutCompany:
+  summary: Actualizar una unidad de negocio existente
+  tags:
+    - Company
+  security:
+    - OAuth2: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/RequestBu.yaml#/BusinessUnitInput'
+  responses:
+    '201':
+      description: Unidad de negocio actualizada exitosamente
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 201
+              statusCode:
+                type: integer
+                example: 201
+              data:
+                $ref: '../schemas/Unit.yaml'
+PutBranch:
+  put:
+    summary: Actualizar la ubicación de una sucursal específica
+    tags:
+      - Company
+    security:
+      - OAuth2: []
+    parameters:
+      - name: location
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: branch
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/RequestBu.yaml#/BranchInput'
+    responses:
+      '201':
+        description: Sucursal actualizada exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 201
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  $ref: '../schemas/Branch.yaml'
+DeleteBranch:
+  delete:
+    summary: Eliminar una sucursal específica y su ubicación
+    tags:
+      - Company
+    security:
+      - OAuth2: []
+    parameters:
+      - name: branch
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '201':
+        description: Sucursal eliminada exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 201
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: string
+                  nullable: true
+                  example: null
+DeleteUnit:
+  delete:
+    summary: Eliminar una unidad de negocio específica
+    tags:
+      - Company
+    security:
+      - OAuth2: []
+    parameters:
+      - name: unit
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '201':
+        description: Unidad de negocio eliminada exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 201
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: string
+                  nullable: true
+                  example: null
+PostBranch:
+  post:
+    summary: Crear una nueva sucursal para una unidad de negocio
+    tags:
+      - Company
+    security:
+      - OAuth2: []
+    parameters:
+      - name: unit
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/RequestBu.yaml#/BranchInput'
+    responses:
+      '201':
+        description: Sucursal creada exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 201
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: array
+                  items:
+                    $ref: '../schemas/Branch.yaml'

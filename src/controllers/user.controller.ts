@@ -10,7 +10,8 @@ export const getUsersController = async (req: Request, res: Response) => {
     try {
         const pageNum = Number(req.query.page) || 1;
         const pageSize = Number(req.query.pageSize) || 20;
-        const { data, count } = await usrService.getUsers(pageNum, pageSize);
+        const user = String(req.query.user);
+        const { data, count } = await usrService.getUsers(pageNum, pageSize, user);
         res.status(200).json({
             code: 200,
             statusCode: 200,
@@ -39,16 +40,24 @@ export const getUserController = async (req: Request, res: Response) => {
 
 export const createUserController = async (req: Request, res: Response) => {
     try {
-        const { username, name, email, password, lastName } = req.body;
+        const { username, name, email, password } = req.body;
 
         if (!username || !name || !email || !password) {
             throw new OAuthError('Todos los campos son obligatorios.', {
                 code: 400,
-                name: "BAD_REQUEST"
+                name: "BAD_REQUEST_NULL_FIELDS"
             })
         } else {
             const hashedPassword = await hashPassword(password);
-            const user = await usrService.createUser({ username, name, email, password: hashedPassword, last_name: lastName });
+
+            const bodyData = {
+                ...req.body,
+                password: hashedPassword
+            }
+            const unidad = String(req.query.unid);
+            const branch = String(req.query.branch);
+
+            const user = await usrService.createUser(bodyData, unidad, branch);
             res.status(201).json({
                 code: 201,
                 statusCode: 201,
@@ -60,32 +69,6 @@ export const createUserController = async (req: Request, res: Response) => {
     }
 };
 
-export const employeController = async (req: Request, res: Response) => {
-    try {
-        const userId = req.params.id;
-        const emplInfo = await usrService.getEmployeInfo(userId);
-        res.status(200).json({
-            code: 200,
-            statusCode: 200,
-            data: emplInfo
-        })
-    } catch (error: any) {
-        res.status(error.statusCode || 500).json(error);
-    }
-}
-
-export const verifyUserController = async (req: Request, res: Response) => {
-    try {
-        const usr = await usrService.verifyUser(req.params.id);
-        res.status(201).json({
-            code: 201,
-            statusCode: 201,
-            data: usr
-        })
-    } catch (error: any) {
-        res.status(error.statusCode || 500).json(error);
-    }
-}
 
 export const updateImgController = async (req: Request, res: Response) => {
     try {
@@ -93,13 +76,13 @@ export const updateImgController = async (req: Request, res: Response) => {
         if (!req.file) {
             throw new OAuthError('Image requerida', {
                 code: 400,
-                name: "BAD_REQUEST"
+                name: "BAD_REQUEST_NOT_IMAGE"
             })
         }
         const storage = getStorageProvider();
         const factoryUpload = await storage.uploadImage(req.file?.buffer,
             {
-                folder: "sso",
+                folder: "users",
                 public_id: req.query.pub,
                 overwrite: true,
                 invalidate: true
@@ -131,8 +114,21 @@ export const updateUserController = async (req: Request, res: Response) => {
 
 export const resetPasswordController = async (req: Request, res: Response) => {
     try {
-        await usrService.resetPassword(req.body.pass, req.params.id);
+        await usrService.resetPassword(req.body.pass, req.params.id, req.body.last_pass);
 
+        res.status(201).json({
+            code: 201,
+            statusCode: 201,
+            data: null
+        });
+    } catch (error: any) {
+        res.status(error.statusCode || 500).json(error);
+    }
+}
+
+export const setPreferenceController = async (req: Request, res: Response) => {
+    try {
+        await usrService.setPreferences(req.params.id, req.body);
         res.status(201).json({
             code: 201,
             statusCode: 201,

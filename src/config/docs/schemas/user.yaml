@@ -1,0 +1,136 @@
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - user_id
+        - username
+      properties:
+        user_id:
+          type: string
+          example: "usr_001"
+        username:
+          type: string
+          example: "jacobo.hernandez"
+        name:
+          type: string
+          nullable: true
+          example: "Jacobo"
+        last_name:
+          type: string
+          nullable: true
+          example: "Hernández"
+        second_last_name:
+          type: string
+          nullable: true
+          example: "Mendieta"
+        email:
+          type: string
+          nullable: true
+          example: "jacobo@example.com"
+        phone:
+          type: string
+          nullable: true
+          example: "+52 55 1234 5678"
+        profile_picture:
+          type: string
+          nullable: true
+          example: "https://example.com/images/profile.jpg"
+        status:
+          type: string
+          nullable: true
+          example: "active"
+        last_login:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-08-23T14:00:00Z"
+        biografia:
+          type: string
+          nullable: true
+          example: "Apasionado por la integración entre arte y tecnología."
+    Preferences:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          example: "pref_001"
+        theme:
+          type: string
+          nullable: true
+          example: "dark"
+        notifications:
+          type: boolean
+          nullable: true
+          example: true
+        timezone:
+          type: string
+          nullable: true
+          example: "America/Mexico_City"
+        lang:
+          type: string
+          nullable: true
+          example: "es"
+
+    UserBusiness:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+          example: "ub_001"
+        job_title:
+          type: string
+          nullable: true
+          example: "Arquitecto de soluciones"
+        department:
+          type: string
+          nullable: true
+          example: "Tecnología"
+        hire_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2022-01-15"
+        branch_id:
+          type: string
+          nullable: true
+          example: "branch_001"
+
+    Location:
+      type: object
+      properties:
+        location_id:
+          type: string
+          nullable: true
+          example: "loc_001"
+        street_name:
+          type: string
+          nullable: true
+          example: "Av. Reforma"
+        street_number:
+          type: string
+          nullable: true
+          example: "123"
+        neighborhood:
+          type: string
+          nullable: true
+          example: "Centro"
+        city:
+          type: string
+          nullable: true
+          example: "Ciudad de México"
+        state:
+          type: string
+          nullable: true
+          example: "CDMX"
+        postal_code:
+          type: string
+          nullable: true
+          example: "02000"
+        country:
+          type: string
+          nullable: true
+          example: "México"

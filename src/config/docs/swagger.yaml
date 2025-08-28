@@ -1,0 +1,84 @@
+openapi: 3.0.0
+info:
+  title: SSO
+  version: 1.0.0
+
+paths:
+  '/api/v1/client/{id}':
+    get:
+      $ref: './paths/client.yaml#/GetClient'
+    delete:
+      $ref: './paths/client.yaml#/DeleteClient'
+    put:
+      $ref: './paths/client.yaml#/UpdateClient'
+  /api/v1/client:
+    $ref: './paths/client.yaml#/CreateClient'
+  /api/v1/clients:
+    $ref: './paths/client.yaml#/GetClients'
+  '/api/v1/grants/{id}':
+    $ref: './paths/Grants.yaml#/AssignGrants'
+  '/api/v1/client/grants':
+    $ref: './paths/client.yaml#/GetGrantsList'
+  '/api/v1/company/{id}':
+    get:
+      $ref: './paths/units.yaml#/GetCompany'
+    put:
+      $ref: './paths/units.yaml#/PutCompany'
+  '/api/v1/company':
+    $ref: './paths/units.yaml#/PostCompany'
+  '/api/v1/companys':
+    $ref: './paths/units.yaml#/GeUnits'
+  '/api/v1/company/branch/{location}/{branch}':
+    $ref: './paths/units.yaml#/PutBranch'
+  '/api/v1/company/branch/{branch}':
+    $ref: './paths/units.yaml#/DeleteBranch'
+  '/api/v1/company/{unit}':
+    $ref: './paths/units.yaml#/DeleteUnit'
+  '/api/v1/company/branch/{unit}':
+    $ref: './paths/units.yaml#/PostBranch'
+  '/api/v1/rols':
+    $ref: './paths/Rol.yaml#/GetRoles'
+  '/api/v1/rol/{id}':
+    $ref: './paths/Rol.yaml#/GetRoleById'
+  '/api/v1/rols/{id}':
+    $ref: './paths/Rol.yaml#/PostRoleAssignment'
+  '/api/v1/rol':
+    $ref: './paths/Rol.yaml#/PostRole'
+  '/api/v1/users':
+    $ref: './paths/users.yaml#/GetUsers'
+  '/api/v1/user':
+    $ref: './paths/users.yaml#/PostUser'
+  '/api/v1/user/{id}':
+    get:
+      $ref: './paths/users.yaml#/GetUserOne'
+    put:
+      $ref: './paths/users.yaml#/PutUser'
+  '/api/v1/user/image/{id}':
+    $ref: './paths/users.yaml#/PostUserImage'
+  '/api/v1/user/password/{id}':
+    $ref: './paths/users.yaml#/PostResetPassword'
+  '/api/v1/user/preferences/{id}':
+    $ref: './paths/users.yaml#/PutUserPreferences'
+
+components:
+  schemas:
+    ClientResponse:
+      $ref: './schemas/ClientResponse.yaml#/ClientSchema'
+    Grant:
+      $ref: './schemas/Grant.yaml'
+    CreateClientRequest:
+      $ref: './schemas/ClientResponse.yaml#/ClientReq'
+    Units:
+      $ref: './schemas/Unit.yaml'
+
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: 'https://auth.example.com/oauth/token'
+        authorizationCode:
+          authorizationUrl: 'https://auth.example.com/oauth/authorize'
+          tokenUrl: 'https://auth.example.com/oauth/token'
+        password:
+          tokenUrl: 'https://auth.example.com/oauth/token'

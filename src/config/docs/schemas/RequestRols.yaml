@@ -1,0 +1,50 @@
+RequestGrantRol:
+  type: object
+  properties:
+    rols:
+      type: array
+      items:
+        type: object
+        required:
+          - type
+          - user
+        properties:
+          type:
+            type: string
+            enum: [CREATE, DELETE]
+            example: CREATE
+          user:
+            type: string
+            example: "jacobo.hernandez"
+UserItem:
+  type: object
+  required:
+    - user_id
+  properties:
+    name:
+      type: string
+      nullable: true
+      example: "Jacobo"
+    user_id:
+      type: string
+      example: "usr_001"
+    last_name:
+      type: string
+      nullable: true
+      example: "Hernández"
+    second_last_name:
+      type: string
+      nullable: true
+      example: "Mendieta"
+    profile_picture:
+      type: string
+      nullable: true
+      example: "https://example.com/images/profile.jpg"
+    department:
+      type: string
+      nullable: true
+      example: "Tecnología"
+    job_title:
+      type: string
+      nullable: true
+      example: "Arquitecto de soluciones"
