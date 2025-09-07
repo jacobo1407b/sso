@@ -1,6 +1,6 @@
 [
     {
-        "id": "d4e7b2a1-6f3c-4c9e-8a2f-9b1d7c3e2a4f",
+        "id": "4f7e4fd8-b11b-4e3b-a8d1-3fe618b5b12f",
         "perm_name": "DISABLE_2FA_SELF",
         "perm_code": "SEC_2FA_DISABLE_SELF",
         "action": "DELETE",
@@ -9,7 +9,7 @@
         "created_by": "system"
     },
     {
-        "id": "a7d2f1b3-9c4e-4a2f-8b1e-7f3d9c2a1b5e",
+        "id": "100623b4-892f-4a45-8354-4fd7ae2307bb",
         "perm_name": "ENABLE_2FA_SELF",
         "perm_code": "SEC_2FA_ENABLE_SELF",
         "action": "UPDATE",

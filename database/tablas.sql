@@ -73,7 +73,7 @@ CREATE TABLE "public"."SSO_USER_BUSINESS_UNIT_T" (
   BRANCH_ID UUID REFERENCES "public"."SSO_BUSINESS_UNIT_BRANCHES_T"(BRANCH_ID),
   END_DATE TIMESTAMP
 );
-CREATE INDEX idx_user_unit_active ON "public"."SSO_USER_BUSINESS_UNIT_T" (USER_ID, END_DATE);
+--CREATE INDEX idx_user_unit_active ON "public"."SSO_USER_BUSINESS_UNIT_T" (USER_ID, END_DATE);
 
 
 
@@ -104,7 +104,6 @@ CREATE TABLE "public"."SSO_AUTH_USERS_T" (
 CREATE INDEX idx_sso_users_username ON "public"."SSO_AUTH_USERS_T" (USERNAME);
 CREATE INDEX idx_sso_users_email ON "public"."SSO_AUTH_USERS_T" (EMAIL);
 CREATE INDEX idx_sso_users_created_date ON "public"."SSO_AUTH_USERS_T" (CREATED_DATE);
-CREATE INDEX idx_sso_users_authorization_code ON "public"."SSO_AUTH_USERS_T" (AUTHORIZATION_CODE);
 CREATE INDEX idx_sso_users_status ON "public"."SSO_AUTH_USERS_T" (STATUS);
 
 
@@ -203,7 +202,7 @@ CREATE TABLE "public"."SSO_AUTH_PERMISSIONS_T" (
   CREATED_BY VARCHAR(50),
   CREATED_DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX idx_module_action_resource ON "public"."SSO_AUTH_PERMISSIONS_T"(MODULE, ACTION, RESOURCE);
+CREATE INDEX idx_module_action_resource ON "public"."SSO_AUTH_PERMISSIONS_T"(ACTION);
 CREATE INDEX idx_is_system_perm ON "public"."SSO_AUTH_PERMISSIONS_T"(IS_SYSTEM);
 
 
