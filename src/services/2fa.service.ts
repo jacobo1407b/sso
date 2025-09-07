@@ -72,9 +72,18 @@ class Security2FA {
         })
     }
 
-    /*async delete2fa(id: string) {
-        await 
-    }*/
+    async delete2fa(id: string, user: string) {
+        await prisma.sSO_AUTH_USER_2FA.delete({
+            where: { id: id }
+        });
+
+        await prisma.sSO_AUTH_USERS_T.update({
+            where: { user_id: user },
+            data: {
+                id_user_2fa: null
+            }
+        })
+    }
 }
 
 export const faService = new Security2FA();

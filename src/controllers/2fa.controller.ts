@@ -64,3 +64,15 @@ export const verifySecretController = async (req: Request, res: Response) => {
         res.status(e.statusCode || 500).json(e);
     }
 }
+
+export const cancelSecretController = async (req: Request, res: Response) => {
+    try {
+        await faService.delete2fa(req.params.id, req.user?.userId ?? "");
+        res.status(201).json({
+            code: 201,
+            statusCode: 201
+        });
+    } catch (e: any) {
+        res.status(e.statusCode || 500).json(e);
+    }
+}
