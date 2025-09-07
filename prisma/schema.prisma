@@ -62,7 +62,7 @@ model SSO_AUTH_GRANTS_T {
 }
 
 model SSO_AUTH_ROLES_T {
-  id                          String                        @id @db.Uuid
+  id                          String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   role_name                   String?                       @db.VarChar(50)
   role_code                   String?                       @db.VarChar(50)
   description                 String?
@@ -197,7 +197,7 @@ model SSO_USER_BUSINESS_UNIT_T {
 }
 
 model SSO_AUTH_PERMISSIONS_T {
-  id                          String                        @id @db.Uuid
+  id                          String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   perm_name                   String                        @db.VarChar(70)
   perm_code                   String                        @unique @db.VarChar(50)
   description                 String?
