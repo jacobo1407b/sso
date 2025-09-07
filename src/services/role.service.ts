@@ -88,6 +88,7 @@ class RoleService {
             }
         });
     }
+    //update
 
     async createRol(data: {
         rol_name: string;
