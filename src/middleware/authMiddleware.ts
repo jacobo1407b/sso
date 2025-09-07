@@ -8,6 +8,7 @@ const Request = OAuth2Server.Request;
 const Response = OAuth2Server.Response;
 
 
+
 export const authenticateRequest = (req: Request, res: Response, next: NextFunction) => {
     const request = new Request(req);
     const response = new Response(res);
@@ -58,19 +59,34 @@ export const errorHandlerValidate = (req: Request, res: Response, next: NextFunc
     next();
 };
 
-export const requierePermiso = (rol: string[], dominio?: string) => {
-    return (req: Request, _res: Response, next: NextFunction) => {
-        const permisos = req.user?.rols?.flatMap((x) => x.role_code) || [];
+type Action = 'READ' | 'CREATE' | 'UPDATE' | 'DELETE';
 
+export function requierePermiso(resource: string, action: Action) {
+    return (req: Request, res: Response, next: NextFunction) => {
+        const token = req.user;
 
-        const faltantes = rol.filter(p => permisos.includes(p));
-        
-        if (faltantes.length === 0) return next(new OAuthError('Permiso insuficiente para esta operación', {
-            code: 403,
-            name: 'FORBIDDEN_POLICY',
-            details: null
-        }));
+        if (!token || !token.rols || token.rols.length === 0) {
+            next(new OAuthError('No roles found in token', {
+                code: 403,
+                name: 'UN_AUTORIZE',
+                details: 'No roles found in token'
+            }));
+        }
+
+        const permissionCode = `${resource}:${action}`;
+
+        const hasPermission = token?.rols.some(role =>
+            role.policy_permission.includes(permissionCode)
+        );
+
+        if (!hasPermission) {
+            next(new OAuthError(`Access denied for ${permissionCode}`, {
+                code: 403,
+                name: 'UN_AUTORIZE',
+                details: `Access denied for ${permissionCode}`
+            }));
+        }
 
         next();
     };
-};
+}

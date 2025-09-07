@@ -5,14 +5,13 @@ import { authenticateRequest, requierePermiso } from "@middleware/authMiddleware
 const router = express.Router();
 
 router.use(authenticateRequest);
-router.use(requierePermiso(['IAM', 'ADMIN_SSO']));
 
-router.get("/rols", rols.getRolsController)
+router.get("/rols", requierePermiso('PERM_VIEW', 'READ'), rols.getRolsController)
 
-router.get("/rol/:id", rols.getRolsUniqID);
+router.get("/rol/:id", requierePermiso('PERM_VIEW', 'READ'), rols.getRolsUniqID);
 
-router.post("/rols/:id", rols.assigmentController);
+router.post("/rols/:id", requierePermiso('USR_ROLE_ASSIGN', 'UPDATE'), rols.assigmentController);
 
-router.post("/rol", rols.createRolController)
+//router.post("/rol", rols.createRolController)
 
 export default router;

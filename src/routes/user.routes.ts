@@ -8,18 +8,19 @@ import * as userValid from '@validators/users.validator';
 const router = express.Router();
 
 router.use(authenticateRequest);
-router.post("/user", requierePermiso(["USER_PROVICIONE", 'ADMIN_SSO']), userValid.validarUsuario, errorHandlerValidate, usr.createUserController);
+router.post("/user", requierePermiso('USR_CREATE', 'CREATE'), userValid.validarUsuario, errorHandlerValidate, usr.createUserController);
 
-router.get("/users", requierePermiso(["USER_PROVICIONE", 'ADMIN_SSO']), userValid.getUser, errorHandlerValidate, usr.getUsersController);
+router.get("/users", requierePermiso('USR_VIEW_ALL', 'READ'), userValid.getUser, errorHandlerValidate, usr.getUsersController);
 
-router.get("/user/:id", requierePermiso(["END_USER", 'USER_PROVICIONE', 'ADMIN_SSO']), usr.getUserController);
+router.get("/user/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.getUserController);
 
-router.put("/user/image/:id", requierePermiso(["END_USER", 'USER_PROVICIONE', 'ADMIN_SSO']), upload.single('image'), userValid.esquemaUploadArchivo, errorHandlerValidate, usr.updateImgController);
+router.put("/user/image/:id", requierePermiso('USR_EDIT_PROF', 'UPDATE'), upload.single('image'), userValid.esquemaUploadArchivo, errorHandlerValidate, usr.updateImgController);
 
-router.put("/user/:id", requierePermiso(["END_USER", 'USER_PROVICIONE', 'ADMIN_SSO']), userValid.PerfilUsuario, errorHandlerValidate, usr.updateUserController);
+router.put("/user/:id", requierePermiso('USR_EDIT_PROF', 'UPDATE'), userValid.PerfilUsuario, errorHandlerValidate, usr.updateUserController);
 
-router.put("/user/password/:id", requierePermiso(["USER_PROVICIONE", 'ADMIN_SSO']), userValid.CambioPassword, errorHandlerValidate, usr.resetPasswordController);
+router.put("/user/password/:id", requierePermiso('SYS_PREF_UPDATE', 'UPDATE'), userValid.CambioPassword, errorHandlerValidate, usr.resetPasswordController);
 
-router.put("/user/preferences/:id", requierePermiso(["END_USER", 'USER_PROVICIONE', 'ADMIN_SSO']), usr.setPreferenceController);
+router.put("/user/preferences/:id", requierePermiso('SYS_PREF_UPDATE', 'UPDATE'), usr.setPreferenceController);
 
 export default router;
+//falta api para actualizar datos empresariales de usuario

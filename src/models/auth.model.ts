@@ -7,7 +7,7 @@ const SECRET_KEY = process.env.SECRET_KEY || 'tu_clave_secreta';
 
 
 const getClient = async (clientId: string, clientSecret: string) => {
-
+    //comparar el secret
     const result = await prisma.sSO_AUTH_CLIENTS_T.findFirst({
         /*where: {
             AND: [
@@ -171,12 +171,13 @@ const getRefreshToken = async (refreshToken: string) => {
                     SSO_AUTH_ROLES_T: {
                         select: {
                             role_code: true,
+                            module: true,
                             SSO_AUTH_ROLE_PERMISSIONS_T: {
                                 select: {
                                     SSO_AUTH_PERMISSIONS_T: {
                                         select: {
                                             perm_code: true,
-                                            module: true,
+                                            action: true
                                         }
                                     }
                                 }
@@ -206,9 +207,10 @@ const getRefreshToken = async (refreshToken: string) => {
             preferences: SSO_AUTH_USER_PREFERENCES_T,
             userBusiness: SSO_USER_BUSINESS_UNIT_T,
             roles: SSO_AUTH_ACCESS_T?.map((x) => {
-                const perm = x.SSO_AUTH_ROLES_T.SSO_AUTH_ROLE_PERMISSIONS_T.map((p) => `${p.SSO_AUTH_PERMISSIONS_T.perm_code}:${p.SSO_AUTH_PERMISSIONS_T.module}`)
+                const perm = x.SSO_AUTH_ROLES_T.SSO_AUTH_ROLE_PERMISSIONS_T.map((p) => `${p.SSO_AUTH_PERMISSIONS_T.perm_code}:${p.SSO_AUTH_PERMISSIONS_T.action}`)
                 return {
                     role_code: x.SSO_AUTH_ROLES_T.role_code,
+                    module: x.SSO_AUTH_ROLES_T.module,
                     policy_permission: perm
                 }
             })
@@ -263,12 +265,13 @@ const getUser = async (username: any, passwordP: any) => {
                     SSO_AUTH_ROLES_T: {
                         select: {
                             role_code: true,
+                            module: true,
                             SSO_AUTH_ROLE_PERMISSIONS_T: {
                                 select: {
                                     SSO_AUTH_PERMISSIONS_T: {
                                         select: {
                                             perm_code: true,
-                                            module: true,
+                                            action: true
                                         }
                                     }
                                 }
@@ -299,9 +302,10 @@ const getUser = async (username: any, passwordP: any) => {
         preferences: SSO_AUTH_USER_PREFERENCES_T,
         userBusiness: SSO_USER_BUSINESS_UNIT_T,
         roles: SSO_AUTH_ACCESS_T.map((x) => {
-            const perm = x.SSO_AUTH_ROLES_T.SSO_AUTH_ROLE_PERMISSIONS_T.map((p) => `${p.SSO_AUTH_PERMISSIONS_T.perm_code}:${p.SSO_AUTH_PERMISSIONS_T.module}`)
+            const perm = x.SSO_AUTH_ROLES_T.SSO_AUTH_ROLE_PERMISSIONS_T.map((p) => `${p.SSO_AUTH_PERMISSIONS_T.perm_code}:${p.SSO_AUTH_PERMISSIONS_T.action}`)
             return {
                 role_code: x.SSO_AUTH_ROLES_T.role_code,
+                module: x.SSO_AUTH_ROLES_T.module,
                 policy_permission: perm
             }
         })
@@ -379,12 +383,13 @@ const getAuthorizationCode = async (code: any) => {
                             SSO_AUTH_ROLES_T: {
                                 select: {
                                     role_code: true,
+                                    module: true,
                                     SSO_AUTH_ROLE_PERMISSIONS_T: {
                                         select: {
                                             SSO_AUTH_PERMISSIONS_T: {
                                                 select: {
                                                     perm_code: true,
-                                                    module: true,
+                                                    action: true
                                                 }
                                             }
                                         }
@@ -397,7 +402,7 @@ const getAuthorizationCode = async (code: any) => {
             }
         }
     });
-    if(!codeDb) throw new OAuthError("No se encontro un code", {
+    if (!codeDb) throw new OAuthError("No se encontro un code", {
         code: 404,
         name: "CODE_FN"
     });
@@ -410,9 +415,10 @@ const getAuthorizationCode = async (code: any) => {
             preferences: SSO_AUTH_USER_PREFERENCES_T,
             userBusiness: SSO_USER_BUSINESS_UNIT_T,
             roles: SSO_AUTH_ACCESS_T?.map((x) => {
-                const perm = x.SSO_AUTH_ROLES_T.SSO_AUTH_ROLE_PERMISSIONS_T.map((p) => `${p.SSO_AUTH_PERMISSIONS_T.perm_code}:${p.SSO_AUTH_PERMISSIONS_T.module}`)
+                const perm = x.SSO_AUTH_ROLES_T.SSO_AUTH_ROLE_PERMISSIONS_T.map((p) => `${p.SSO_AUTH_PERMISSIONS_T.perm_code}:${p.SSO_AUTH_PERMISSIONS_T.action}`)
                 return {
                     role_code: x.SSO_AUTH_ROLES_T.role_code,
+                    module: x.SSO_AUTH_ROLES_T.module,
                     policy_permission: perm
                 }
             })

@@ -48,13 +48,37 @@ ClientSchema:
 ClientReq:
   type: object
   properties:
-    file:
+    app:
       type: string
-      format: binary
-      description: Archivo adjunto del cliente
-    client:
-      type: string
-      description: JSON serializado como string. Ejemplo
+      description: Nombre de la aplicación cliente
+    grants:
+      type: array
+      items:
+        type: string
+      description: Lista de permisos otorgados (grants)
+    data:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Descripción de la aplicación
+        redirect_callback:
+          type: string
+          format: uri
+          description: URL de redirección para el callback
+        scopes:
+          type: string
+          description: Alcances autorizados para el cliente
+        app_type:
+          type: string
+          description: Tipo de aplicación (ej. web, móvil, servicio)
+      required:
+        - description
+        - redirect_callback
+        - scopes
+        - app_type
   required:
-    - file
-    - client
+    - app
+    - grants
+    - data
+

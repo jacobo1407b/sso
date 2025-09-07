@@ -17,6 +17,10 @@ properties:
     type: string
     nullable: true
     example: "Rol con acceso completo al sistema"
+  module:
+    type: string
+    nullable: true
+    example: "SSO_ADMIN"
   created_date:
     type: string
     format: date-time

@@ -93,6 +93,7 @@ class RoleService {
         rol_name: string;
         rol_code: string;
         description: string;
+        module: string;
     }, usersList: Array<string>, user: string) {
         const findRol = await prisma.sSO_AUTH_ROLES_T.findFirst({
             where: { role_code: data.rol_code }

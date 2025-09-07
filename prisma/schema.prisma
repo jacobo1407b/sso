@@ -62,7 +62,7 @@ model SSO_AUTH_GRANTS_T {
 }
 
 model SSO_AUTH_ROLES_T {
-  id                          String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                          String                        @id @db.Uuid
   role_name                   String?                       @db.VarChar(50)
   role_code                   String?                       @db.VarChar(50)
   description                 String?
@@ -117,11 +117,13 @@ model SSO_AUTH_USERS_T {
   authorization_code             String?                          @db.VarChar(20)
   id_user_bu                     String?                          @db.Uuid
   id_user_preference             String?                          @db.Uuid
+  id_user_2fa                    String?                          @db.Uuid
   SSO_AUTH_ACCESS_T              SSO_AUTH_ACCESS_T[]
   SSO_AUTH_AUTHORIZATION_CODES_T SSO_AUTH_AUTHORIZATION_CODES_T[]
   SSO_AUTH_TOKEN_T               SSO_AUTH_TOKEN_T[]
   SSO_USER_BUSINESS_UNIT_T       SSO_USER_BUSINESS_UNIT_T?        @relation(fields: [id_user_bu], references: [id], onDelete: NoAction, onUpdate: NoAction)
   SSO_AUTH_USER_PREFERENCES_T    SSO_AUTH_USER_PREFERENCES_T?     @relation(fields: [id_user_preference], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  SSO_AUTH_USER_2FA              SSO_AUTH_USER_2FA?               @relation(fields: [id_user_2fa], references: [id], onUpdate: NoAction, map: "fk_user_2fa")
 
   @@index([authorization_code], map: "idx_sso_users_authorization_code")
   @@index([created_date], map: "idx_sso_users_created_date")
@@ -195,7 +197,7 @@ model SSO_USER_BUSINESS_UNIT_T {
 }
 
 model SSO_AUTH_PERMISSIONS_T {
-  id                          String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                          String                        @id @db.Uuid
   perm_name                   String                        @db.VarChar(70)
   perm_code                   String                        @unique @db.VarChar(50)
   description                 String?
@@ -226,4 +228,20 @@ model SSO_AUTH_AUTHORIZATION_CODES_T {
   created_date       DateTime?          @default(now()) @db.Timestamp(6)
   SSO_AUTH_CLIENTS_T SSO_AUTH_CLIENTS_T @relation(fields: [client_id], references: [client_id], onDelete: NoAction, onUpdate: NoAction)
   SSO_AUTH_USERS_T   SSO_AUTH_USERS_T   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model SSO_AUTH_USER_2FA {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ascii             String
+  hex               String
+  base32            String             @db.VarChar(800)
+  otpauth_url       String
+  created_date      DateTime?          @default(now()) @db.Timestamptz(6)
+  updated_date      DateTime?          @default(now()) @db.Timestamptz(6)
+  verified_date     DateTime?          @db.Timestamptz(6)
+  verified_status   String?            @db.VarChar(20)
+  failed_attempts   Int?               @default(0)
+  last_attempt_date DateTime?          @db.Timestamptz(6)
+  expires_date      DateTime?          @db.Timestamptz(6)
+  SSO_AUTH_USERS_T  SSO_AUTH_USERS_T[]
 }

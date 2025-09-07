@@ -261,3 +261,49 @@ PostBranch:
                   type: array
                   items:
                     $ref: '../schemas/Branch.yaml'
+PutImage:
+  put:
+    summary: Cargar o actualizar icono de aplicacion
+    tags:
+      - Client
+    security:
+      - OAuth2: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pub
+        in: query
+        required: false
+        schema:
+          type: string
+        description: id de archivo
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              file:
+                type: string
+                format: binary
+                description: Imagen de aplicacion
+    responses:
+      '200':
+        description: Cliente creado exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 201
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  nullable: true

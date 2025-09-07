@@ -1,0 +1,56 @@
+[
+    {
+        "id": "5c3f1a9e-8b2d-4f6a-9c1e-7d3b2f8a6c9d",
+        "role_name": "SSO Administrator",
+        "role_code": "ADMIN_SSO",
+        "created_by": "system",
+        "is_system": true,
+        "module": "*",
+        "description": "Responsable de la configuración y mantenimiento del sistema de autenticación centralizada (SSO)"
+    },
+    {
+        "id": "9e2a7f3c-1d4b-4c8a-9f6e-3b7d5a1c2f9e",
+        "role_name": "User Provisioner",
+        "role_code": "USER_PROVICIONE",
+        "module": "IAM",
+        "created_by": "system",
+        "is_system": true,
+        "description": "Encargado de la creación, modificación y desactivación de cuentas de usuario en el sistema."
+    },
+    {
+        "id": "3a1d6f9b-7c2e-4b8f-9a3e-5d1c4f7b2a6d",
+        "role_name": "End User",
+        "role_code": "END_USER",
+        "created_by": "system",
+        "module": "USERS",
+        "is_system": true,
+        "description": "Usuario final del sistema. Accede a las aplicaciones mediante SSO y utiliza los servicios disponibles según los permisos asignados."
+    },
+    {
+        "id": "8f2e3a1d-6c9b-4b7d-9f1e-2a3c5f8a7d6b",
+        "role_name": "Application Administrator",
+        "role_code": "APP_MANAGER",
+        "created_by": "system",
+        "module": "APP",
+        "is_system": true,
+        "description": "Administra la configuración de aplicaciones individuales dentro del ecosistema SSO. Define cómo se comporta cada app en términos de acceso, atributos, y permisos."
+    },
+    {
+        "id": "1d3c7f9a-5e2b-4c6a-9f8e-3a7d1b2f4c9e",
+        "role_name": "Identity & Access Manager",
+        "role_code": "IAM",
+        "created_by": "system",
+        "module": "IAM",
+        "is_system": true,
+        "description": "Diseña y supervisa la estrategia general de identidad y acceso. Define políticas, revisa auditorías, y asegura el cumplimiento de normativas."
+    },
+    {
+        "id": "7b2f4c9d-3e1a-4f8b-9c2d-6a1e7f3b8d9c",
+        "role_name": "Business Structure Administrator",
+        "role_code": "ADMIN_BUSINESS",
+        "created_by": "system",
+        "is_system": true,
+        "module": "ORG",
+        "description": "Gestiona la estructura empresarial del sistema."
+    }
+]

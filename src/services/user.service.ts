@@ -213,6 +213,10 @@ class UserService {
         department: string;
         biografia: string
     }, id: string) {
+        const updateData = Object.fromEntries(
+            Object.entries(data).filter(([_, v]) => v !== undefined && v !== null)
+        );
+        
         const usrUpt = await prisma.sSO_AUTH_USERS_T.update({
             where: { user_id: id },
             data: {

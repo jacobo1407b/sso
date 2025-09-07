@@ -44,7 +44,6 @@ class ClientService {
         redirect_callback: string;
         scopes: string;
         app_type: string;
-        client_icon_url?: string;
     }) {
         const cliendValid = await prisma.sSO_AUTH_CLIENTS_T.findFirst({
             where: { app_name: appName }
@@ -140,7 +139,7 @@ class ClientService {
         })
     }
 
-    async updateClient(id: string, data: { description?: string; redirect_callback?: string; scopes?: string; client_icon_url?: string }) {
+    async updateClient(id: string, data: { description?: string; redirect_callback?: string; scopes?: string; }) {
         const updateData = Object.fromEntries(
             Object.entries(data).filter(([_, v]) => v !== undefined && v !== null)
         );
@@ -153,6 +152,15 @@ class ClientService {
 
     async getGrants() {
         return await prisma.sSO_AUTH_GRANTS_T.findMany();
+    }
+
+    async UpdateImageClient(id: string, urlImage: string) {
+        await prisma.sSO_AUTH_CLIENTS_T.update({
+            where: { client_id: id },
+            data: {
+                client_icon_url: urlImage
+            }
+        })
     }
 }
 

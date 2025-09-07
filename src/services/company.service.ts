@@ -286,6 +286,15 @@ class CompanyService {
 
         return br;
     }
+
+    async updateImage(id: string, url: string) {
+        await prisma.sSO_BUSINESS_UNITS_T.update({
+            where: { unit_id: id },
+            data: {
+                img_url: url
+            }
+        })
+    }
 }
 
 export const companyService = new CompanyService();

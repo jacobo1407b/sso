@@ -19,6 +19,8 @@ paths:
     $ref: './paths/Grants.yaml#/AssignGrants'
   '/api/v1/client/grants':
     $ref: './paths/client.yaml#/GetGrantsList'
+  '/api/v1/client/file/{id}':
+    $ref: './paths/client.yaml#/PutImage'
   '/api/v1/company/{id}':
     get:
       $ref: './paths/units.yaml#/GetCompany'
@@ -36,6 +38,8 @@ paths:
     $ref: './paths/units.yaml#/DeleteUnit'
   '/api/v1/company/branch/{unit}':
     $ref: './paths/units.yaml#/PostBranch'
+  '/api/v1/company/file/{id}':
+    $ref: './paths/units.yaml#/PutImage'
   '/api/v1/rols':
     $ref: './paths/Rol.yaml#/GetRoles'
   '/api/v1/rol/{id}':

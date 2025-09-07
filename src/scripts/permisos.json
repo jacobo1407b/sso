@@ -1,0 +1,182 @@
+[
+    {
+        "id":"3f8a9c4e-2c9b-4b3e-9f3e-0f2d2a6b5c1e",
+        "perm_name": "VIEW_ALL_USERS",
+        "perm_code": "USR_VIEW_ALL",
+        "action": "READ",
+        "description": "Permite visualizar la lista completa de usuarios registrados en el sistema, incluyendo sus roles y estados.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"7d2e1f9a-8b4c-4f1f-9a6c-3e2b1d7f8c9a",
+        "perm_name": "VIEW_USER_DETAIL",
+        "perm_code": "USR_VIEW_ONE",
+        "action": "READ",
+        "description": "Permite visualizar los datos detallados de un usuario específico, según el contexto y nivel de acceso.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"9a3e7b2f-6c1d-4e8a-9f2b-7d3c4f1e2a9b",
+        "perm_name": "EXECUTE_PASSWORD_RESET",
+        "perm_code": "USR_RESET_EXEC",
+        "action": "UPDATE",
+        "description": "Permite ejecutar el reseteo de contraseña de un usuario.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"2b7f4c9d-3e1a-4f8b-9c2d-6a1e7f3b8d9c",
+        "perm_name": "EDIT_USER_PROFILE",
+        "perm_code": "USR_EDIT_PROF",
+        "action": "UPDATE",
+        "description": "Permite modificar los datos de perfil de un usuario, incluyendo nombre, correo, rol y estado.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"8c1e2a9b-7d3f-4b6c-9f2e-3a1d5e7f9b4c",
+        "perm_name": "EDIT_OWN_PROFILE",
+        "perm_code": "USR_EDIT_SELF",
+        "action": "UPDATE",
+        "description": "Permite al usuario modificar únicamente su propio perfil",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"4f1e3a2b-9c7d-4e6a-8b2f-1d3c7f9a5e6b",
+        "perm_name": "CREATE_USER",
+        "perm_code": "USR_CREATE",
+        "action": "CREATE",
+        "description": "Permite registrar un nuevo usuario en el sistema, asignándole roles, credenciales y atributos iniciales.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"6a2d9f3c-1e4b-4c7f-8a9b-3d2e5f1c7b8a",
+        "perm_name": "UPDATE_USER_BUSINESS_DATA",
+        "perm_code": "USR_BUSINESS_UPDATE",
+        "action": "UPDATE",
+        "description": "Permite modificar los datos empresariales asociados a un usuario, como razón social, RFC, giro comercial y contacto fiscal.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"1d3c7f9a-5e6b-4b2f-9c8a-7f1e2a3d6c4b",
+        "perm_name": "UPDATE_SYSTEM_PREFERENCES",
+        "perm_code": "SYS_PREF_UPDATE",
+        "action": "UPDATE",
+        "description": "Permite modificar las preferencias generales del sistema, como idioma, zona horaria",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"5e6b1d3c-7f9a-4c2b-8a9f-3e1d4f7b2c6a",
+        "perm_name": "VIEW_BUSINESS_UNITS",
+        "perm_code": "BUS_UNIT_VIEW",
+        "action": "READ",
+        "description": "Permite consultar las unidades de negocio registradas en el sistema.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"3f9c1e3a-2b7d-4e6e-9d3f-8a2f4c9b1a6e",
+        "perm_name": "CREATE_BUSINESS_UNIT",
+        "perm_code": "BUS_UNIT_CREATE",
+        "action": "CREATE",
+        "description": "Permite registrar una nueva unidad de negocio en el sistema",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"7a1e5f2c-8d3b-4c9f-bf1e-2e6a3d7c9a4b",
+        "perm_name": "UPDATE_BUSINESS_UNIT",
+        "perm_code": "BUS_UNIT_UPDATE",
+        "action": "UPDATE",
+        "description": "Permite modificar los datos de una unidad de negocio registrada en el sistema.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"9c4e2b1f-3d8a-4f1e-8c7b-1a2d3e4f5b6c",
+        "perm_name": "DELETE_BUSINESS_UNIT",
+        "perm_code": "BUS_UNIT_DELETE",
+        "action": "DELETE",
+        "description": "Eliminar una unidad de negocio registrada en el sistema.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"2e7d3f9a-1c4b-4a6e-bf8c-9d3e2f1a7b5c",
+        "perm_name": "CREATE_BRANCH",
+        "perm_code": "BRANCH_CREATE",
+        "action": "CREATE",
+        "description": "Registro de nuevas sucursales dentro de una unidad de negocio.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"8b2f1c3e-7d4a-4e9f-9a6c-3f1e2b7d8c4a",
+        "perm_name": "VIEW_APPLICATIONS",
+        "perm_code": "APP_VIEW",
+        "action": "READ",
+        "description": "Consulta de aplicaciones registradas.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"5c1e9a3f-2d7b-4f8c-b1a6-7e3d4c9f2b8a",
+        "perm_name": "DELETE_APPLICATION",
+        "perm_code": "APP_DELETE",
+        "action": "DELETE",
+        "description": "Eliminación de aplicaciones registradas",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"a4f2c9e1-3b7d-4a6f-8c1e-2d9b5f3a7e6c",
+        "perm_name": "MANAGE_APPLICATION_GRANTS",
+        "perm_code": "APP_GRANTS_MANAGE",
+        "action": "UPDATE",
+        "description": "Gestión de los grants vinculados a una aplicación, incluyendo asignación, revocación y validación de alcances según contexto operativo.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"6e3d1f2b-9a4c-4f7e-b8c1-3d2a7b5f9c4e",
+        "perm_name": "UPDATE_APPLICATION",
+        "perm_code": "APP_UPDATE",
+        "action": "UPDATE",
+        "description": "Modificación de atributos de una aplicación existente.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"b1a6c3f2-7d9e-4e8f-2c1b-5a3d4f7e9b6c",
+        "perm_name": "VIEW_SYSTEM_PERMISSIONS",
+        "perm_code": "PERM_VIEW",
+        "action": "READ",
+        "description": "Consulta de permisos definidos en el sistema.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"f9c2e1a4-3d7b-4f6e-8c9f-1a2b5d3e7c4a",
+        "perm_name": "VIEW_ROLES",
+        "perm_code": "ROLE_VIEW",
+        "action": "READ",
+        "description": "Consulta de roles definidos en el sistema, incluyendo nombre, código, permisos asociados y contexto de aplicación.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
+        "id":"c7b5f3a2-1e9d-4a6c-b8f1-3d2e4c7a9b5f",
+        "perm_name": "ASSIGN_ROLES_TO_USER",
+        "perm_code": "USR_ROLE_ASSIGN",
+        "action": "UPDATE",
+        "description": "Gestión de roles asociados a un usuario, incluyendo asignación, revocación y validación según contexto organizacional y nivel de acceso.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    }
+]

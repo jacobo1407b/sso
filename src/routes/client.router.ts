@@ -6,19 +6,20 @@ import { authenticateRequest, requierePermiso } from "@middleware/authMiddleware
 const router = express.Router();
 
 router.use(authenticateRequest);
-router.use(requierePermiso(['APP_MANAGER', 'ADMIN_SSO']));
-router.get("/client/:id", clent.getClientByIdController);
+router.get("/client/:id", requierePermiso('APP_VIEW', 'READ'), clent.getClientByIdController);
 
-router.post("/client", upload.single('image'), clent.createClientController);
+router.post("/client", requierePermiso('APP_CREATE', 'CREATE'), clent.createClientController);//FALTA AGREGAR
 
-router.get("/clients", clent.getClientsController);
+router.get("/clients", requierePermiso('APP_VIEW', 'READ'), clent.getClientsController);
 
-router.post("/client/grants/:id", clent.createGrantsController);
+router.post("/client/grants/:id", requierePermiso('APP_GRANTS_MANAGE', 'UPDATE'), clent.createGrantsController);
 
-router.delete("/client/:id", clent.deleteClientController)
+router.delete("/client/:id", requierePermiso('APP_DELETE', 'DELETE'), clent.deleteClientController)
 
-router.put("/client/:id", upload.single('image'), clent.updateClientController);
+router.put("/client/:id", requierePermiso('APP_UPDATE', 'UPDATE'), clent.updateClientController);
 
-router.get("/client/grants", clent.listGrantsController);
+router.get("/client/grants", requierePermiso('APP_VIEW', 'READ'), clent.listGrantsController);
+
+router.put("/client/file/:id", requierePermiso('APP_UPDATE', 'UPDATE'), upload.single('image'), clent.putImageClient);
 
 export default router;

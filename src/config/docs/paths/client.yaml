@@ -36,7 +36,7 @@ CreateClient:
       - OAuth2: []
     requestBody:
       content:
-        multipart/form-data:
+        application/json:
           schema:
             $ref: '../schemas/ClientResponse.yaml#/ClientReq'
     responses:
@@ -49,10 +49,10 @@ CreateClient:
               properties:
                 code:
                   type: integer
-                  example: 200
+                  example: 201
                 statusCode:
                   type: integer
-                  example: 200
+                  example: 201
                 data:
                   $ref: '../schemas/ClientResponse.yaml#/ClientSchema'
 GetClients:
@@ -122,7 +122,7 @@ DeleteClient:
         type: string
       description: ID del cliente a eliminar
   responses:
-    '201':
+    '200':
       description: Cliente eliminado exitosamente
       content:
         application/json:
@@ -152,28 +152,14 @@ UpdateClient:
       schema:
         type: string
       description: ID del cliente a actualizar
-    - in: query
-      name: pub
-      required: false
-      schema:
-        type: string
-      description: Identificador público para la imagen (public_id)
   requestBody:
     required: true
     content:
-      multipart/form-data:
+      application/json:
         schema:
-          type: object
-          properties:
-            file:
-              type: string
-              format: binary
-              description: Imagen del cliente
-            payload:
-              type: string
-              description: JSON serializado como string con los datos del cliente
+          $ref: '../schemas/ClientResponse.yaml#/ClientReq'
   responses:
-    '201':
+    '200':
       description: Cliente actualizado exitosamente
       content:
         application/json:
@@ -213,4 +199,49 @@ GetGrantsList:
                   type: array
                   items:
                     $ref: '../schemas/Grant.yaml'
-
+PutImage:
+  put:
+    summary: Cargar o actualizar icono de aplicacion
+    tags:
+      - Client
+    security:
+      - OAuth2: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pub
+        in: query
+        required: false
+        schema:
+          type: string
+        description: id de archivo
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              file:
+                type: string
+                format: binary
+                description: Imagen de aplicacion
+    responses:
+      '200':
+        description: Cliente creado exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 201
+                statusCode:
+                  type: integer
+                  example: 201
+                data:
+                  type: object
+                  nullable: true

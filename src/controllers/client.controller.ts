@@ -19,25 +19,36 @@ export const getClientByIdController = async (req: Request, res: Response) => {
         res.status(e.statusCode || 500).json(e);
     }
 }
+
+export const putImageClient = async (req: Request, res: Response) => {
+    try {
+        const storage = getStorageProvider();
+        if (!req.file) throw new OAuthError('Imagen requerida', {
+            code: 400,
+            name: "BAD_REQUEST_NOT_IMAGE"
+        });
+        const { publicId } = await storage.uploadImage(req.file.buffer, {
+            folder: "app",
+            public_id: req.query.pub,
+            overwrite: true,
+            invalidate: true
+        });
+        await clientService.UpdateImageClient(req.params.id, publicId);
+        res.status(201).json({
+            code: 201,
+            statusCode: 201,
+            data: null
+        });
+    } catch (error: any) {
+        res.status(error.statusCode || 500).json(error);
+    }
+
+}
 //POST Crear un app y sus grants
 export const createClientController = async (req: Request, res: Response) => {
     try {
-        const { app, grants, data } = JSON.parse(req.body.payload);
-        let dataSend = data;
-
-        const storage = getStorageProvider();
-
-
-        if (req.file) {
-            const { publicId } = await storage.uploadImage(req.file.buffer, {
-                folder: "app"
-            });
-            dataSend = {
-                ...JSON.parse(req.body.payload).data,
-                client_icon_url: publicId
-            }
-        }
-        const create = await clientService.createClient(app, grants, dataSend);
+        const { app, grants, data } = req.body
+        const create = await clientService.createClient(app, grants, data);
 
         res.status(201).json({
             code: 201,
@@ -105,21 +116,7 @@ export const createGrantsController = async (req: Request, res: Response) => {
 
 export const updateClientController = async (req: Request, res: Response) => {
     try {
-        const storage = getStorageProvider();
-        let payload = JSON.parse(req.body.payload);
-        if (req.file) {
-            const { publicId } = await storage.uploadImage(req.file.buffer, {
-                folder: "app",
-                public_id: req.query.pub,
-                overwrite: true,
-                invalidate: true
-            });
-            payload = {
-                ...JSON.parse(req.body.payload),
-                client_icon_url: publicId
-            }
-        }
-        const updateClient = await clientService.updateClient(req.params.id, payload);
+        const updateClient = await clientService.updateClient(req.params.id, req.body);
         res.status(201).json({
             code: 201,
             statusCode: 201,

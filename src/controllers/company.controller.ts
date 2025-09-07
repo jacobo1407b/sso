@@ -1,6 +1,31 @@
 import { Request, Response } from "express";
 import { companyService } from "@services/company.service";
+import { getStorageProvider } from "@services/storage.factory";
+import { OAuthError } from "oauth2-server";
 
+export const putImageBuController = async (req: Request, res: Response) => {
+    try {
+        const storage = getStorageProvider();
+        if (!req.file) throw new OAuthError('Imagen requerida', {
+            code: 400,
+            name: "BAD_REQUEST_NOT_IMAGE"
+        });
+        const { publicId } = await storage.uploadImage(req.file.buffer, {
+            folder: "local",
+            public_id: req.query.pub,
+            overwrite: true,
+            invalidate: true
+        });
+        await companyService.updateImage(req.params.id, publicId);
+        res.status(200).json({
+            code: 200,
+            statusCode: 200,
+            data: null
+        });
+    } catch (error: any) {
+        res.status(error.statusCode || 500).json(error);
+    }
+}
 export const getOneBusinessController = async (req: Request, res: Response) => {
     try {
         const findCompany = await companyService.getOneBusiness(req.params.id);
