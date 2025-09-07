@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --watch src --ext ts,yaml,yml --exec ts-node -r tsconfig-paths/register src/index.ts",
-    "build": "yarn install && yarn client && tsc && tsc-alias",
+    "build": "yarn install && yarn prisma && tsc && tsc-alias",
     "prisma":"npx prisma db pull && npx prisma generate client",
     "start": "node -r tsconfig-paths/register dist/index.js",
     "clean": "rmdir /s /q dist || del /s /q dist",
