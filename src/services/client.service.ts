@@ -35,6 +35,7 @@ class ClientService {
             app_type: cl?.app_type,
             client_icon_url: cl?.client_icon_url,
             created_by: cl?.created_by,
+            last_update_date: cl?.last_update_date,
             grants: grants
         }
     }
@@ -109,7 +110,6 @@ class ClientService {
         await prisma.sSO_AUTH_CLIENT_GRANTS_T.createMany({
             data: grants
         });
-        return await this.getClientById(client);
     }
 
     async revokeGrants(id: string, grants: Array<{ grant: string }>) {
@@ -120,7 +120,6 @@ class ClientService {
                 grant_id: { in: mp }
             }
         })
-        return await this.getClientById(id);
     }
 
     async deleteClient(id: string) {
@@ -145,7 +144,10 @@ class ClientService {
         );
         await prisma.sSO_AUTH_CLIENTS_T.update({
             where: { client_id: id },
-            data: updateData
+            data: {
+                ...updateData,
+                last_update_date: new Date()
+            }
         });
         return await this.getClientById(id);
     }
@@ -158,7 +160,8 @@ class ClientService {
         await prisma.sSO_AUTH_CLIENTS_T.update({
             where: { client_id: id },
             data: {
-                client_icon_url: urlImage
+                client_icon_url: urlImage,
+                last_update_date: new Date()
             }
         })
     }

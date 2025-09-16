@@ -7,7 +7,7 @@ import { hashPassword } from "@utils/bcrypt";
 
 class UserService {
     //todos
-    
+
 
     //administracion
     async getUsers(page = 1, pageSize = 20, name?: string) {
@@ -30,12 +30,20 @@ class UserService {
                 profile_picture: true,
                 status: true,
                 last_login: true,
-                biografia: true
+                biografia: true,
+                SSO_USER_BUSINESS_UNIT_T: true
             },
             where
         });
+        const tempData = data.map((x) => {
+            const { SSO_USER_BUSINESS_UNIT_T, ...all } = x;
+            return {
+                ...all,
+                userBusiness: SSO_USER_BUSINESS_UNIT_T
+            }
+        })
 
-        return { data, count }
+        return { data: tempData, count }
     }
 
     //todos
@@ -62,6 +70,11 @@ class UserService {
                         department: true,
                         hire_date: true,
                         branch_id: true
+                    }
+                },
+                SSO_AUTH_USER_2FA: {
+                    select: {
+                        id: true
                     }
                 }
             }
@@ -94,7 +107,8 @@ class UserService {
             },
             location: {
                 ...location?.SSO_BUSINESS_LOCATIONS_T
-            }
+            },
+            mfa_enable: usr?.SSO_AUTH_USER_2FA ? true : false
         }
     }
 
@@ -130,7 +144,7 @@ class UserService {
                     lang: "es"
                 }
             });
-            
+
             const userBusiness = await tx.sSO_USER_BUSINESS_UNIT_T.create({
                 data: {
                     unit_id: unit,
@@ -186,7 +200,7 @@ class UserService {
         await prisma.sSO_AUTH_USERS_T.update({
             where: { user_id: id },
             data: {
-                profile_picture: urlImage
+                profile_picture: urlImage,
             }
         });
 
@@ -213,10 +227,7 @@ class UserService {
         department: string;
         biografia: string
     }, id: string) {
-        const updateData = Object.fromEntries(
-            Object.entries(data).filter(([_, v]) => v !== undefined && v !== null)
-        );
-        
+
         const usrUpt = await prisma.sSO_AUTH_USERS_T.update({
             where: { user_id: id },
             data: {
@@ -273,6 +284,51 @@ class UserService {
             data
         })
     }
+
+    async userdetails(id: string) {
+        const userDetails = await prisma.sSO_AUTH_USERS_T.findUnique({
+            where: { user_id: id },
+            select: {
+                username: true,
+                SSO_AUTH_USER_2FA: {
+                    select: {
+                        id: true,
+                        failed_attempts: true,
+                        expires_date: true,
+                        last_attempt_date: true,
+                        verified_status: true
+                    }
+                },
+                last_login: true,
+                SSO_AUTH_TOKEN_T: {
+                    select: {
+                        agent: true,
+                        ip_address: true,
+                        created_date: true,
+                        token_id: true
+                    }
+                }
+            }
+        });
+        return {
+            username: userDetails?.username,
+            totp: userDetails?.SSO_AUTH_USER_2FA ? {
+                id: userDetails?.SSO_AUTH_USER_2FA?.id,
+                failed_attempts: userDetails?.SSO_AUTH_USER_2FA?.failed_attempts,
+                expires_date: userDetails?.SSO_AUTH_USER_2FA?.expires_date,
+                last_attempt_date: userDetails?.SSO_AUTH_USER_2FA?.last_attempt_date,
+                verified_status: userDetails?.SSO_AUTH_USER_2FA?.verified_status
+            } : null,
+            sesions: userDetails?.SSO_AUTH_TOKEN_T ?? null
+        }
+    }
+
+    async revokSesion(id: string) {
+        await prisma.sSO_AUTH_TOKEN_T.delete({
+            where: { token_id: id }
+        });
+    }
+
 
 
 }

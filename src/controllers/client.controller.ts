@@ -92,22 +92,20 @@ export const createGrantsController = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
         const { grantsType } = req.body;
-        let dataResp = null;
 
         const deletesArr: Array<any> = grantsType.filter((x: any) => x.type === "DELETE");
         const updtArr: Array<any> = grantsType.filter((x: any) => x.type === "UPDATE");
         if (deletesArr.length !== 0) {
-            dataResp = await clientService.revokeGrants(id, deletesArr);
+           await clientService.revokeGrants(id, deletesArr);
         }
         if (updtArr.length !== 0) {
-            dataResp = await clientService.setGrants(id, updtArr);
+            await clientService.setGrants(id, updtArr);
         }
-
 
         res.status(201).json({
             code: 201,
             statusCode: 201,
-            data: dataResp
+            data: null
         });
     } catch (error: any) {
         res.status(error.statusCode || 500).json(error);

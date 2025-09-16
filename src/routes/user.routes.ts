@@ -22,5 +22,9 @@ router.put("/user/password/:id", requierePermiso('SYS_PREF_UPDATE', 'UPDATE'), u
 
 router.put("/user/preferences/:id", requierePermiso('SYS_PREF_UPDATE', 'UPDATE'), usr.setPreferenceController);
 
+router.get("/user/details/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.getUserDetailController);
+
+router.delete("/user/sesion/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.revokeSesionController);
+
 export default router;
 //falta api para actualizar datos empresariales de usuario

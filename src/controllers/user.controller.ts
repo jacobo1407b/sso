@@ -138,3 +138,29 @@ export const setPreferenceController = async (req: Request, res: Response) => {
         res.status(error.statusCode || 500).json(error);
     }
 }
+
+export const getUserDetailController = async (req: Request, res: Response) => {
+    try {
+        const details = await usrService.userdetails(req.params.id);
+        res.status(200).json({
+            code: 200,
+            statusCode: 200,
+            data: details
+        })
+    } catch (error: any) {
+        res.status(error.statusCode || 500).json(error);
+    }
+}
+
+export const revokeSesionController = async (req: Request, res: Response) => {
+    try {
+        await usrService.revokSesion(req.params.id);
+        res.status(200).json({
+            code: 200,
+            statusCode: 200,
+            data: null
+        })
+    } catch (error: any) {
+        res.status(error.statusCode || 500).json(error);
+    }
+}

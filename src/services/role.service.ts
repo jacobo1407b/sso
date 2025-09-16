@@ -1,6 +1,7 @@
 import prisma from "@config/prisma";
 import { OAuthError } from "oauth2-server";
 
+
 class RoleService {
     /** Obtiene todos los roles */
     async getRoles(page = 1, pageSize = 20, rol_code?: string) {
@@ -22,7 +23,29 @@ class RoleService {
     /** Obtiene un rol por ID */
     async getRoleById(roleId: string) {
         const rol = await prisma.sSO_AUTH_ROLES_T.findUnique({
-            where: { id: roleId }
+            where: { id: roleId },
+            select: {
+                SSO_AUTH_ROLE_PERMISSIONS_T: {
+                    select: {
+                        SSO_AUTH_PERMISSIONS_T: {
+                            select: {
+                                perm_code: true,
+                                perm_name: true,
+                                description: true,
+                                action: true,
+                                IS_SYSTEM: true
+                            }
+                        }
+                    }
+                },
+                role_name: true,
+                role_code: true,
+                module: true,
+                description: true,
+                is_system: true,
+                created_date: true,
+                created_by: true
+            }
         });
         const users = await prisma.sSO_AUTH_ACCESS_T.findMany({
             where: { role_id: roleId },
@@ -57,9 +80,17 @@ class RoleService {
             }
         });
 
+
         return {
-            ...rol,
-            users: rolMap
+            users: rolMap,
+            role_name: rol?.role_name,
+            role_code: rol?.role_code,
+            description: rol?.description,
+            created_by: rol?.created_by,
+            created_date: rol?.created_date,
+            is_system: rol?.is_system,
+            module: rol?.module,
+            permissions: rol?.SSO_AUTH_ROLE_PERMISSIONS_T.map((x) => x.SSO_AUTH_PERMISSIONS_T)
         }
     }
 

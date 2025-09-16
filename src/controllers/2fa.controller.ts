@@ -14,7 +14,8 @@ export const generateSecretController = async (req: Request, res: Response) => {
             statusCode: 201,
             data: {
                 id: fa.id,
-                otpauth_url: fa.otpauth_url
+                otpauth_url: fa.otpauth_url,
+                code: fa.base32
             }
         });
     } catch (e: any) {
