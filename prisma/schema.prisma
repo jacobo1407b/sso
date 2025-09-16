@@ -31,6 +31,7 @@ model SSO_AUTH_CLIENTS_T {
   app_type                       String?                          @db.VarChar(20)
   client_icon_url                String?
   created_by                     String?                          @db.VarChar(50)
+  last_update_date               DateTime?                        @default(now()) @db.Timestamp(6)
   SSO_AUTH_AUTHORIZATION_CODES_T SSO_AUTH_AUTHORIZATION_CODES_T[]
   SSO_AUTH_CLIENT_GRANTS_T       SSO_AUTH_CLIENT_GRANTS_T[]
 
