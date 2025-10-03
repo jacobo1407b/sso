@@ -12,3 +12,13 @@
 ---traer en usuario si esta activo el 2fa
 lista de usuarios disponibles de asignar en rol
 ---en el rol agregar los permisos disponibles
+
+
+
+
+✅ Usuario creado correctamente
+   📧 Email: admin@admin.com
+   🔑 Password: $FBHp94DEyUq2
+   📱 APP: SSO
+   🆔 CLIENT: sso:1757992792070:web:5e5e0a39c8de500be10ebc
+   🔐 SECRET: 5fa5e327b5defb367b75804ca7445c80

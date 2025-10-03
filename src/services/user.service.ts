@@ -1,4 +1,5 @@
 import prisma from "@config/prisma";
+import { Prisma } from '@prisma/client';
 import { OAuthError } from "oauth2-server";
 import { hashPassword } from "@utils/bcrypt";
 
@@ -8,17 +9,22 @@ import { hashPassword } from "@utils/bcrypt";
 class UserService {
     //todos
 
-
     //administracion
     async getUsers(page = 1, pageSize = 20, name?: string) {
-        const where: any = {};
-        if (name) {
-            where.name = name
-        }
+        const whereClause = name
+            ? {
+                name: {
+                    contains: name,
+                    mode: Prisma.QueryMode.insensitive
+                }
+            }
+            : undefined;
+
         const count = await prisma.sSO_AUTH_USERS_T.count();
         const data = await prisma.sSO_AUTH_USERS_T.findMany({
             take: pageSize,
             skip: (page - 1) * pageSize,
+            where: whereClause,
             select: {
                 user_id: true,
                 username: true,
@@ -32,8 +38,7 @@ class UserService {
                 last_login: true,
                 biografia: true,
                 SSO_USER_BUSINESS_UNIT_T: true
-            },
-            where
+            }
         });
         const tempData = data.map((x) => {
             const { SSO_USER_BUSINESS_UNIT_T, ...all } = x;
@@ -42,12 +47,12 @@ class UserService {
                 userBusiness: SSO_USER_BUSINESS_UNIT_T
             }
         })
-
         return { data: tempData, count }
     }
 
     //todos
     async getUserOne(id: string) {
+        let location = null;
         const usr = await prisma.sSO_AUTH_USERS_T.findUnique({
             where: { user_id: id },
             select: {
@@ -76,15 +81,23 @@ class UserService {
                     select: {
                         id: true
                     }
+                },
+                SSO_AUTH_TOKEN_T: {
+                    select: {
+                        token_id: true
+                    }
                 }
             }
         });
-        const location = await prisma.sSO_BUSINESS_UNIT_BRANCHES_T.findUnique({
-            where: { branch_id: usr?.SSO_USER_BUSINESS_UNIT_T?.branch_id ?? "" },
-            select: {
-                SSO_BUSINESS_LOCATIONS_T: true
-            }
-        });
+        if (usr?.SSO_USER_BUSINESS_UNIT_T?.branch_id) {
+            location = await prisma.sSO_BUSINESS_UNIT_BRANCHES_T.findUnique({
+                where: { branch_id: usr?.SSO_USER_BUSINESS_UNIT_T?.branch_id ?? "" },
+                select: {
+                    SSO_BUSINESS_LOCATIONS_T: true
+                }
+            });
+        }
+
 
 
         return {
@@ -108,7 +121,8 @@ class UserService {
             location: {
                 ...location?.SSO_BUSINESS_LOCATIONS_T
             },
-            mfa_enable: usr?.SSO_AUTH_USER_2FA ? true : false
+            mfa_enable: usr?.SSO_AUTH_USER_2FA ? true : false,
+            sessions: usr?.SSO_AUTH_TOKEN_T.length ?? 0
         }
     }
 
@@ -122,8 +136,9 @@ class UserService {
         second_last_name: string;
         hire_date: string;
         job_title: string,
-        department: string
-    }, unit: string, branch: string) {
+        department: string;
+        phone: string;
+    }, unit: string | null, branch: string | null, currentUser?: string) {
         // Verificar si el email ya está en uso
         const existingUser = await prisma.sSO_AUTH_USERS_T.findUnique({
             where: { email: userData.email }
@@ -135,10 +150,13 @@ class UserService {
                 name: "USR_EMEXT"
             });
         }
+        const rolUser = await prisma.sSO_AUTH_ROLES_T.findFirst({
+            where: { role_code: 'END_USER' }
+        })
         const result = await prisma.$transaction(async (tx) => {
             const preferences = await tx.sSO_AUTH_USER_PREFERENCES_T.create({
                 data: {
-                    theme: "dark",
+                    theme: "light",
                     notifications: false,
                     timezone: "America/Mexico_City",
                     lang: "es"
@@ -156,16 +174,19 @@ class UserService {
             });
             const user = await tx.sSO_AUTH_USERS_T.create({
                 data: {
-                    username: userData.email,
+                    username: userData.username,
+                    email: userData.email,
                     name: userData.name,
                     last_name: userData.last_name,
                     password: userData.password,
                     second_last_name: userData.second_last_name,
                     status: "ACTIVE",
                     id_user_preference: preferences.id,
-                    id_user_bu: userBusiness.id
+                    id_user_bu: userBusiness.id,
+                    phone: userData.phone
                 }
             });
+
             return {
                 user_id: user?.user_id,
                 username: user?.username,
@@ -182,13 +203,23 @@ class UserService {
                 userBusiness
             }
         });
-
-        const location = await prisma.sSO_BUSINESS_UNIT_BRANCHES_T.findFirst({
-            where: { branch_id: branch },
-            select: {
-                SSO_BUSINESS_LOCATIONS_T: true
+        await prisma.sSO_AUTH_ACCESS_T.create({
+            data: {
+                role_id: rolUser?.id ?? "",
+                user_id: result.user_id,
+                created_by: currentUser
             }
         })
+        let location = null;
+        if (branch) {
+            location = await prisma.sSO_BUSINESS_UNIT_BRANCHES_T.findFirst({
+                where: { branch_id: branch },
+                select: {
+                    SSO_BUSINESS_LOCATIONS_T: true
+                }
+            })
+        }
+
 
         return {
             ...result,
@@ -285,7 +316,7 @@ class UserService {
         })
     }
 
-    async userdetails(id: string) {
+    async userdetails(id: string, session: string) {
         const userDetails = await prisma.sSO_AUTH_USERS_T.findUnique({
             where: { user_id: id },
             select: {
@@ -307,9 +338,17 @@ class UserService {
                         created_date: true,
                         token_id: true
                     }
-                }
+                },
+                SSO_AUTH_USER_PREFERENCES_T: true
             }
         });
+        const sessions = userDetails?.SSO_AUTH_TOKEN_T.map((x) => {
+            const current = x.token_id === session;
+            return {
+                ...x,
+                current
+            }
+        })
         return {
             username: userDetails?.username,
             totp: userDetails?.SSO_AUTH_USER_2FA ? {
@@ -319,11 +358,32 @@ class UserService {
                 last_attempt_date: userDetails?.SSO_AUTH_USER_2FA?.last_attempt_date,
                 verified_status: userDetails?.SSO_AUTH_USER_2FA?.verified_status
             } : null,
-            sesions: userDetails?.SSO_AUTH_TOKEN_T ?? null
+            sesions: sessions,
+            preferences: userDetails?.SSO_AUTH_USER_PREFERENCES_T ?? null
         }
     }
 
-    async revokSesion(id: string) {
+    async revokSesion(id: string, sso: boolean) {
+        if (sso) {
+            const tok = await prisma.sSO_AUTH_TOKEN_T.findFirst({
+                where: { token_id: id },
+                select: {
+                    SSO_AUTH_USERS_T: {
+                        select: {
+                            id_user_2fa: true
+                        }
+                    }
+                }
+            });
+            if (tok?.SSO_AUTH_USERS_T?.id_user_2fa) await prisma.sSO_AUTH_USER_2FA.update({
+                where: { id: tok.SSO_AUTH_USERS_T.id_user_2fa },
+                data: {
+                    log_in_status: null
+                }
+            })
+
+        }
+
         await prisma.sSO_AUTH_TOKEN_T.delete({
             where: { token_id: id }
         });

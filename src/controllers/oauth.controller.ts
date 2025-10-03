@@ -11,8 +11,13 @@ export const authTokenController = async (req: Request, res: any) => {
     const ResponseO = OAuth2Server.Response;
     const requ = new RequestO(req);
     const resp = new ResponseO(res);
+    
     try {
-        const token = await getServer().token(requ, resp);
+        const token = await getServer().token(requ, resp, { allowExtendedTokenAttributes: true });
+        if(req.body.userAgent){
+            await oauthService.updateAgent(req.body.userAgent, req.body.ip, token.token_id)
+        }
+        oauthService.updateUserLogin(token.user.user_id);
         res.cookie('session', JSON.stringify(token), {
             httpOnly: true,   // Impide acceso desde JavaScript (protege contra XSS)
             secure: true,     // Solo se envía en HTTPS

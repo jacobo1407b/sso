@@ -1,4 +1,10 @@
 [
+     {
+        "role_id": "5c3f1a9e-8b2d-4f6a-9c1e-7d3b2f8a6c9d",
+        "permission_id": "a3d7f9e2-4c1b-4b8f-9e8a-2f6c3d1a7b9e",
+        "granted_by": "system"
+    },
+
     {
         "role_id": "3a1d6f9b-7c2e-4b8f-9a3e-5d1c4f7b2a6d",
         "permission_id": "4f7e4fd8-b11b-4e3b-a8d1-3fe618b5b12f",
@@ -10,6 +16,11 @@
         "granted_by": "system"
     },
 
+    {
+        "role_id": "3a1d6f9b-7c2e-4b8f-9a3e-5d1c4f7b2a6d",
+        "permission_id": "7d2e1f9a-8b4c-4f1f-9a6c-3e2b1d7f8c9a",
+        "granted_by": "system"
+    },
 
 
     

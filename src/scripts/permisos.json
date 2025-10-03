@@ -135,6 +135,15 @@
         "created_by": "system"
     },
     {
+        "id": "a3d7f9e2-4c1b-4b8f-9e8a-2f6c3d1a7b9e",
+        "perm_name": "CREATE_APPLICATIONS",
+        "perm_code": "APP_CREATE",
+        "action": "CREATE",
+        "description": "Permite registrar nuevas aplicaciones en el sistema.",
+        "IS_SYSTEM": true,
+        "created_by": "system"
+    },
+    {
         "id": "8b2f1c3e-7d4a-4e9f-9a6c-3f1e2b7d8c4a",
         "perm_name": "VIEW_APPLICATIONS",
         "perm_code": "APP_VIEW",

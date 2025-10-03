@@ -10,7 +10,7 @@ export const getUsersController = async (req: Request, res: Response) => {
     try {
         const pageNum = Number(req.query.page) || 1;
         const pageSize = Number(req.query.pageSize) || 20;
-        const user = String(req.query.user);
+        const user = String(req.query.user) === "undefined" ? undefined : String(req.query.user)
         const { data, count } = await usrService.getUsers(pageNum, pageSize, user);
         res.status(200).json({
             code: 200,
@@ -54,10 +54,10 @@ export const createUserController = async (req: Request, res: Response) => {
                 ...req.body,
                 password: hashedPassword
             }
-            const unidad = String(req.query.unid);
-            const branch = String(req.query.branch);
+            const unidad = req.query.unid ? String(req.query.unid) : null;
+            const branch = req.query.branch ? String(req.query.branch) : null;
 
-            const user = await usrService.createUser(bodyData, unidad, branch);
+            const user = await usrService.createUser(bodyData, unidad, branch, req.user?.userId);
             res.status(201).json({
                 code: 201,
                 statusCode: 201,
@@ -141,7 +141,8 @@ export const setPreferenceController = async (req: Request, res: Response) => {
 
 export const getUserDetailController = async (req: Request, res: Response) => {
     try {
-        const details = await usrService.userdetails(req.params.id);
+        const session_id = String(req.query.session ?? "")
+        const details = await usrService.userdetails(req.params.id, session_id);
         res.status(200).json({
             code: 200,
             statusCode: 200,
@@ -154,10 +155,11 @@ export const getUserDetailController = async (req: Request, res: Response) => {
 
 export const revokeSesionController = async (req: Request, res: Response) => {
     try {
-        await usrService.revokSesion(req.params.id);
-        res.status(200).json({
-            code: 200,
-            statusCode: 200,
+        const ssoMain = req.query.main === "Y" ? true : false;
+        await usrService.revokSesion(req.params.id, ssoMain);
+        res.status(201).json({
+            code: 201,
+            statusCode: 201,
             data: null
         })
     } catch (error: any) {

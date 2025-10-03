@@ -10,6 +10,7 @@ import oauthRoutes from "@routes/oauth.routes";
 import clientRouter from "@routes/client.router";
 import rolsRouter from "@routes/role.router";
 import companyRoutes from "@routes/company.router";
+import mfa from '@routes/2fa.router';
 
 import { authenticateRequest } from "@middleware/authMiddleware";
 import { startConfig } from "@config/oauth";
@@ -27,7 +28,8 @@ setupSwagger(app);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", clientRouter);
 app.use("/api/v1", rolsRouter);
-app.use("/api/v1", companyRoutes)
+app.use("/api/v1", companyRoutes);
+app.use("/api/v1", mfa);
 app.use('/oauth', oauthRoutes);
 
 //function can only be invoked for an authenticated request

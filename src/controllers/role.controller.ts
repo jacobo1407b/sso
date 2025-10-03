@@ -6,7 +6,7 @@ export const getRolsController = async (req: Request, res: Response) => {
     try {
         const page = Number(req.query.page ?? 1);
         const size = Number(req.query.size ?? 20);
-        const cod = String(req.query.rol_code);
+        const cod = req.query.rol_code ? String(req.query.rol_code) : undefined;
         const rols = await roleService.getRoles(page, size, cod);
 
         res.status(200).json({
@@ -16,6 +16,7 @@ export const getRolsController = async (req: Request, res: Response) => {
             total: rols.total
         });
     } catch (error: any) {
+        console.log(error)
         res.status(error.statusCode || 500).json(error);
     }
 }
@@ -41,7 +42,7 @@ export const assigmentController = async (req: Request, res: Response) => {
         const revokUser: Array<any> = req.body.rols.filter((x: any) => x.type === "DELETE");
 
         if (asigment.length !== 0) {
-            await roleService.assigmentRol(req.params.id, asigment, req.user?.username ?? "");
+            await roleService.assigmentRol(req.params.id, asigment, req.user?.userId ?? "");
         }
 
         if (revokUser.length !== 0) {

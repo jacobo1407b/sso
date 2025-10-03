@@ -32,6 +32,7 @@ model SSO_AUTH_CLIENTS_T {
   client_icon_url                String?
   created_by                     String?                          @db.VarChar(50)
   last_update_date               DateTime?                        @default(now()) @db.Timestamp(6)
+  created_date                   DateTime?                        @default(now()) @db.Timestamp(6)
   SSO_AUTH_AUTHORIZATION_CODES_T SSO_AUTH_AUTHORIZATION_CODES_T[]
   SSO_AUTH_CLIENT_GRANTS_T       SSO_AUTH_CLIENT_GRANTS_T[]
 
@@ -244,5 +245,6 @@ model SSO_AUTH_USER_2FA {
   failed_attempts   Int?               @default(0)
   last_attempt_date DateTime?          @db.Timestamptz(6)
   expires_date      DateTime?          @db.Timestamptz(6)
+  log_in_status     String?            @db.VarChar(20)
   SSO_AUTH_USERS_T  SSO_AUTH_USERS_T[]
 }

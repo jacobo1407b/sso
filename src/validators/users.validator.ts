@@ -96,34 +96,6 @@ export const PerfilUsuario = checkSchema({
         },
         trim: true,
         stripLow: true
-    },
-    job_title: {
-        in: ['body'],
-        notEmpty: { errorMessage: 'El título de puesto es obligatorio' },
-        isString: true,
-        trim: true,
-        escape: true,
-        stripLow: true
-    },
-    department: {
-        in: ['body'],
-        notEmpty: { errorMessage: 'El departamento es obligatorio' },
-        isString: true,
-        trim: true,
-        escape: true,
-        stripLow: true
-    },
-    biografia: {
-        in: ['body'],
-        optional: true,
-        isString: true,
-        trim: true,
-        escape: true,
-        stripLow: true,
-        isLength: {
-            options: { max: 1000 },
-            errorMessage: 'La biografía no debe exceder los 1000 caracteres'
-        }
     }
 });
 
@@ -177,14 +149,14 @@ export const CambioPassword = checkSchema({
     },
 
     // Body param: last_pass
-    last_pass: {
+   /* last_pass: {
         in: ['body'],
         notEmpty: { errorMessage: 'La contraseña anterior es obligatoria' },
         isString: true,
         trim: true,
         escape: true,
         stripLow: true
-    },
+    },*/
 
     // Body param: pass (nueva contraseña)
     pass: {

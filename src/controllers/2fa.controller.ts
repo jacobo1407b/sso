@@ -6,6 +6,10 @@ import speakeasy from "speakeasy"
 
 export const generateSecretController = async (req: Request, res: Response) => {
     try {
+        const usr = await faService.getUserVerifi(req.user?.userId ?? "");
+        if(usr?.id_user_2fa){
+            await faService.delete2fa(usr.id_user_2fa, req.user?.userId ?? "");
+        }
         const fa = await faService.generateSecret();
         await faService.setUser2fa(req.user?.userId ?? "", fa.id);
 
@@ -24,8 +28,8 @@ export const generateSecretController = async (req: Request, res: Response) => {
 }
 
 export const verifySecretController = async (req: Request, res: Response) => {
+    let secret = await faService.getSecret(req.body.id);
     try {
-        let secret = await faService.getSecret(req.body.id);
         const now = new Date();
 
         if (secret?.last_attempt_date && now < new Date(secret.last_attempt_date)) throw new OAuthError(`2FA verification blocked: user temporarily locked`, {
@@ -56,6 +60,7 @@ export const verifySecretController = async (req: Request, res: Response) => {
                 name: 'ERR_2FA_TOTP'
             });
         }
+        console.log("paso")
         await faService.setSuccess(req.body.id);
         res.status(200).json({
             code: 200,

@@ -48,7 +48,7 @@ export const putImageClient = async (req: Request, res: Response) => {
 export const createClientController = async (req: Request, res: Response) => {
     try {
         const { app, grants, data } = req.body
-        const create = await clientService.createClient(app, grants, data);
+        const create = await clientService.createClient(app, grants, data, req.user?.userId ?? "system");
 
         res.status(201).json({
             code: 201,

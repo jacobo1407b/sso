@@ -45,7 +45,7 @@ class ClientService {
         redirect_callback: string;
         scopes: string;
         app_type: string;
-    }) {
+    }, userID: string) {
         const cliendValid = await prisma.sSO_AUTH_CLIENTS_T.findFirst({
             where: { app_name: appName }
         });
@@ -58,9 +58,10 @@ class ClientService {
         const client = await prisma.sSO_AUTH_CLIENTS_T.create({
             data: {
                 ...data,
-                created_by: "",
+                created_by: userID,
                 app_name: appName,
-                client_id: ""
+                client_id: "1",
+                is_active: false
             }
         });
 
@@ -95,12 +96,57 @@ class ClientService {
         const data = await prisma.sSO_AUTH_CLIENTS_T.findMany({
             where,
             take: pageSize,
-            skip: (page - 1) * pageSize
+            skip: (page - 1) * pageSize,
+            select: {
+                client_secret: true,
+                client_id: true,
+                app_name: true,
+                description: true,
+                redirect_callback: true,
+                scopes: true,
+                is_active: true,
+                app_type: true,
+                client_icon_url: true,
+                created_by: true,
+                last_update_date: true,
+                SSO_AUTH_CLIENT_GRANTS_T: {
+                    select: {
+                        SSO_AUTH_GRANTS_T: {
+                            select: {
+                                id: true,
+                                icon_text: true,
+                                grant_code: true,
+                                grants_name: true
+                            }
+                        }
+                    }
+                },
+                created_date: true
+            }
         });
-        return { data, totalCount }
+        const mpClient = data.map((c) => {
+            const grants = c.SSO_AUTH_CLIENT_GRANTS_T.map((g) => g.SSO_AUTH_GRANTS_T);
+            return {
+                client_secret: c.client_secret,
+                client_id: c.client_id,
+                app_name: c.app_name,
+                description: c.description,
+                redirect_callback: c.redirect_callback,
+                scopes: c.scopes,
+                is_active: c.is_active,
+                app_type: c.app_type,
+                client_icon_url: c.client_icon_url,
+                created_by: c.created_by,
+                last_update_date: c.last_update_date,
+                grants: grants,
+                created_date: c.created_date
+            }
+        })
+        return { data: mpClient, totalCount }
     }
 
     async setGrants(client: string, grantsType: Array<{ grant: string }>) {
+
         const grants = grantsType.map((x) => {
             return {
                 client_id: client,

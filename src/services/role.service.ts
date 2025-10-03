@@ -49,7 +49,28 @@ class RoleService {
         });
         const users = await prisma.sSO_AUTH_ACCESS_T.findMany({
             where: { role_id: roleId },
+            select: {
+                created_date: true,
+                SSO_AUTH_USERS_T: {
+                    select: {
+                        user_id: true,
+                        name: true,
+                        email: true,
+                        last_name: true,
+                        second_last_name: true,
+                        profile_picture: true,
+                        SSO_USER_BUSINESS_UNIT_T: {
+                            select: {
+                                job_title: true,
+                                department: true
+                            }
+                        }
+                    }
+                }
+            },
+            /*
             include: {
+
                 SSO_AUTH_USERS_T: {
                     select: {
                         user_id: true,
@@ -65,18 +86,21 @@ class RoleService {
                         }
                     }
                 }
-            }
+            }*/
+
         });
 
         const rolMap = users.map((x) => {
             return {
                 name: x.SSO_AUTH_USERS_T.name,
+                email: x.SSO_AUTH_USERS_T.email,
                 user_id: x.SSO_AUTH_USERS_T.user_id,
                 last_name: x.SSO_AUTH_USERS_T.last_name,
                 second_last_name: x.SSO_AUTH_USERS_T.second_last_name,
                 profile_picture: x.SSO_AUTH_USERS_T.profile_picture,
                 department: x.SSO_AUTH_USERS_T.SSO_USER_BUSINESS_UNIT_T?.department,
-                job_title: x.SSO_AUTH_USERS_T.SSO_USER_BUSINESS_UNIT_T?.job_title
+                job_title: x.SSO_AUTH_USERS_T.SSO_USER_BUSINESS_UNIT_T?.job_title,
+                grant_date: x.created_date
             }
         });
 

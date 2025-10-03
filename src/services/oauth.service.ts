@@ -1,4 +1,5 @@
 import prisma from "@config/prisma";
+import { parseUserAgent } from "@utils/ua";
 
 class OAuthService {
     async updateUserLogin(id: string) {
@@ -17,6 +18,17 @@ class OAuthService {
                 access_token: token
             }
         });
+    }
+
+    async updateAgent(agent: string, ip: string, id: string) {
+        const { browser, os } = parseUserAgent(agent);
+        await prisma.sSO_AUTH_TOKEN_T.update({
+            where: { token_id: id },
+            data: {
+                agent: `${os} ${browser}`,
+                ip_address: ip
+            }
+        })
     }
 }
 

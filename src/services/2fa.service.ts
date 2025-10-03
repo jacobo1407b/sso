@@ -3,6 +3,8 @@ import { OAuthError } from "oauth2-server";
 import speakeasy from "speakeasy";
 
 class Security2FA {
+
+
     async generateSecret() {
         const temp_secret = speakeasy.generateSecret({
             name: process.env.SECRET_SPEAKEASY,
@@ -43,22 +45,24 @@ class Security2FA {
     }
 
     async setSuccess(id: string) {
-        await prisma.sSO_AUTH_USER_2FA.update({
+         await prisma.sSO_AUTH_USER_2FA.update({
             where: { id: id },
             data: {
                 verified_status: "VERIFIED",
                 verified_date: new Date(),
                 failed_attempts: 0,
-                updated_date: new Date()
+                updated_date: new Date(),
+                log_in_status: "SUCCESS"
             }
-        })
+        });
+        
     }
 
     async setUser2fa(user: string, fa: string) {
         await prisma.sSO_AUTH_USER_2FA.update({
             where: { id: fa },
             data: {
-                verified_status: "VERIFIED",
+                verified_status: "UNVERIFIED",
                 verified_date: new Date(),
                 failed_attempts: 0,
                 updated_date: new Date()
@@ -84,6 +88,16 @@ class Security2FA {
             }
         })
     }
+
+    async getUserVerifi(id: string) {
+        return await prisma.sSO_AUTH_USERS_T.findUnique({
+            where: { user_id: id },
+            select: {
+                id_user_2fa: true
+            }
+        })
+    }
+
 }
 
 export const faService = new Security2FA();

@@ -18,7 +18,7 @@ router.delete("/client/:id", requierePermiso('APP_DELETE', 'DELETE'), clent.dele
 
 router.put("/client/:id", requierePermiso('APP_UPDATE', 'UPDATE'), clent.updateClientController);
 
-router.get("/client/grants", requierePermiso('APP_VIEW', 'READ'), clent.listGrantsController);
+router.get("/client/grants/list", requierePermiso('APP_VIEW', 'READ'), clent.listGrantsController);
 
 router.put("/client/file/:id", requierePermiso('APP_UPDATE', 'UPDATE'), upload.single('image'), clent.putImageClient);
 

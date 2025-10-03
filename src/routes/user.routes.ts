@@ -8,6 +8,7 @@ import * as userValid from '@validators/users.validator';
 const router = express.Router();
 
 router.use(authenticateRequest);
+router.delete("/user/sesion/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.revokeSesionController);
 router.post("/user", requierePermiso('USR_CREATE', 'CREATE'), userValid.validarUsuario, errorHandlerValidate, usr.createUserController);
 
 router.get("/users", requierePermiso('USR_VIEW_ALL', 'READ'), userValid.getUser, errorHandlerValidate, usr.getUsersController);
@@ -24,7 +25,7 @@ router.put("/user/preferences/:id", requierePermiso('SYS_PREF_UPDATE', 'UPDATE')
 
 router.get("/user/details/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.getUserDetailController);
 
-router.delete("/user/sesion/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.revokeSesionController);
+
 
 export default router;
 //falta api para actualizar datos empresariales de usuario
