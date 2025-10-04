@@ -6,8 +6,8 @@ let storageProvider: ImageStorage;
 
 export function getStorageProvider(): ImageStorage {
   if (!storageProvider) {
-    //storageProvider = new CloudinaryService(); // en el futuro: switch dinámico
-    storageProvider = new FileSystemService();
+    storageProvider = new CloudinaryService(); // en el futuro: switch dinámico
+    //storageProvider = new FileSystemService();
   }
   return storageProvider;
 }

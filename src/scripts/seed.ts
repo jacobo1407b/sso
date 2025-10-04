@@ -25,6 +25,13 @@ async function truncts() {
 async function main() {
     await truncts();
     const result = await getStorageProvider().uploadImage(Buffer.from(image, 'base64'), { folder: "apps" });
+    const pref = await prisma.sSO_AUTH_USER_PREFERENCES_T.create({
+        data:{
+            theme:"dark",
+            lang:"en"
+        }
+    });
+    
     const user = await prisma.sSO_AUTH_USERS_T.create({
         data: {
             username: "ADMIN",
@@ -32,9 +39,11 @@ async function main() {
             email: userAdm,
             name: "ADMIN",
             last_name: "ADMIN",
-            second_last_name: "ADMIN"
+            second_last_name: "ADMIN",
+            id_user_preference: pref.id
         }
     });
+
     console.log('\x1b[32m%s\x1b[0m', `✅ Usuario creado correctamente`);
 
     console.log('\x1b[34m%s\x1b[0m', `   📧 Email: ${user.email}`);

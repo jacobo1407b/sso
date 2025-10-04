@@ -73,7 +73,7 @@ const saveToken = async (token: any, client: any, user: any) => {
             await prisma.sSO_AUTH_USER_2FA.update({
                 where: { id: user.totp_id },
                 data: {
-                    log_in_status: "WAIT"
+                    log_in_status:"WAIT"
                 }
             });
 
