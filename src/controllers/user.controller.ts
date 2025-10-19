@@ -166,3 +166,16 @@ export const revokeSesionController = async (req: Request, res: Response) => {
         res.status(error.statusCode || 500).json(error);
     }
 }
+
+export const getFederateDataController = async (req: Request, res: Response) => {
+    try {
+        const data = await usrService.getFederateData(req.query.user as string, req.query.client as string);
+        res.status(200).json({
+            code: 200,
+            statusCode: 200,
+            data
+        })
+    } catch (error: any) {
+        res.status(error.statusCode || 500).json(error);
+    }
+}

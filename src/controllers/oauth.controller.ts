@@ -12,6 +12,10 @@ export const authTokenController = async (req: Request, res: any) => {
     const requ = new RequestO(req);
     const resp = new ResponseO(res);
     
+    if(req.body.grant_type === 'password'){
+        await oauthService.resetMfa(req.body.username);
+    }
+    
     try {
         const token = await getServer().token(requ, resp, { allowExtendedTokenAttributes: true });
         if(req.body.userAgent){

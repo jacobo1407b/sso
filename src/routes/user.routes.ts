@@ -25,6 +25,8 @@ router.put("/user/preferences/:id", requierePermiso('SYS_PREF_UPDATE', 'UPDATE')
 
 router.get("/user/details/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.getUserDetailController);
 
+router.get("/sso/federated", requierePermiso('USR_VIEW_ONE', 'READ'), usr.getFederateDataController);
+
 
 
 export default router;

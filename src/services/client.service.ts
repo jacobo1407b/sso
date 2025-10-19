@@ -172,6 +172,7 @@ class ClientService {
         const verify = await prisma.sSO_AUTH_CLIENTS_T.findUnique({
             where: { client_id: id }
         });
+        
         if (verify?.app_name === "SSO") throw new OAuthError(`No se puede eliminar esta aplicación`, {
             code: 409,
             name: 'DNT_DELET_SSO'
@@ -179,9 +180,15 @@ class ClientService {
         await prisma.sSO_AUTH_CLIENT_GRANTS_T.deleteMany({
             where: { client_id: id }
         });
-        await prisma.sSO_AUTH_CLIENTS_T.delete({
+        await prisma.sSO_AUTH_TOKEN_T.deleteMany({
+            where: { client_id: id }
+        });
+        await prisma.sSO_AUTH_AUTHORIZATION_CODES_T.deleteMany({
             where: { client_id: id }
         })
+        const re = await prisma.sSO_AUTH_CLIENTS_T.delete({
+            where: { client_id: id }
+        });
     }
 
     async updateClient(id: string, data: { description?: string; redirect_callback?: string; scopes?: string; }) {

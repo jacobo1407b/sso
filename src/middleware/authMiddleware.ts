@@ -21,7 +21,8 @@ export const authenticateRequest = (req: Request, res: Response, next: NextFunct
                 iat: usr.user.iat,
                 username: usr.user.username,
                 client_id: usr.user.clientId,
-                rols: usr.user.rols
+                rols: usr.user.rols,
+                log_in_status: usr.user.log_in_status
             }
             next();
         })

@@ -128,6 +128,7 @@ export const updateClientController = async (req: Request, res: Response) => {
 
 export const deleteClientController = async (req: Request, res: Response) => {
     try {
+        
         await clientService.deleteClient(req.params.id);
         res.status(201).json({
             code: 201,
@@ -136,6 +137,7 @@ export const deleteClientController = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
+        console.log(error);
         res.status(error.statusCode || 500).json(error);
     }
 }

@@ -11,7 +11,8 @@ declare namespace Express {
       iat: number,
       exp: number,
       client_id: string,
-      rols: rols
+      rols: rols,
+      log_in_status: string | null
     };
   }
 }

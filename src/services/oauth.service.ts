@@ -30,6 +30,28 @@ class OAuthService {
             }
         })
     }
+
+    async resetMfa(email: string) {
+        const user = await prisma.sSO_AUTH_USERS_T.findUnique({
+            where: { email: email },
+            select: {
+                SSO_AUTH_USER_2FA: {
+                    select: {
+                        id: true
+                    }
+                }
+            }
+        });
+        if (user?.SSO_AUTH_USER_2FA) {
+            await prisma.sSO_AUTH_USER_2FA.update({
+                where: { id: user.SSO_AUTH_USER_2FA.id },
+                data: {
+                    log_in_status: null
+                }
+            })
+        }
+
+    }
 }
 
 export const oauthService = new OAuthService();

@@ -388,6 +388,31 @@ class UserService {
             where: { token_id: id }
         });
     }
+    async getFederateData(userId: string, clientId: string) {
+        const userData = await prisma.sSO_AUTH_USERS_T.findUnique({
+            where: { user_id: userId },
+            select: {
+                profile_picture: true,
+                email: true,
+                name: true
+            }
+        });
+        const clientData = await prisma.sSO_AUTH_CLIENTS_T.findUnique({
+            where: { client_id: clientId },
+            select: {
+                app_name: true,
+                description: true,
+                client_icon_url: true,
+                redirect_callback: true
+            }
+        });
+        return {
+            ...userData,
+            ...clientData
+        }
+    }
+
+   
 
 
 

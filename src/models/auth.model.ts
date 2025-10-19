@@ -7,15 +7,14 @@ const SECRET_KEY = process.env.SECRET_KEY || 'tu_clave_secreta';
 
 
 const getClient = async (clientId: string, clientSecret: string) => {
-    //comparar el secret
     const result = await prisma.sSO_AUTH_CLIENTS_T.findFirst({
-        where: {
+        /*where: {
             AND: [
                 { client_id: clientId },
                 { client_secret: clientSecret }
             ]
-        },
-        /*where: { client_id: clientId },*/
+        },*/
+        where: { client_id: clientId },
         include: {
             SSO_AUTH_CLIENT_GRANTS_T: {
                 select: {
