@@ -15,7 +15,7 @@ router.get("/users", requierePermiso('USR_VIEW_ALL', 'READ'), userValid.getUser,
 
 router.get("/user/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.getUserController);
 
-router.put("/user/image/:id", requierePermiso('USR_EDIT_PROF', 'UPDATE'), upload.single('image'), userValid.esquemaUploadArchivo, errorHandlerValidate, usr.updateImgController);
+router.put("/user/image/:id", requierePermiso('USR_EDIT_PROF', 'UPDATE'), upload.single('image'), usr.updateImgController);
 
 router.put("/user/:id", requierePermiso('USR_EDIT_PROF', 'UPDATE'), userValid.PerfilUsuario, errorHandlerValidate, usr.updateUserController);
 
@@ -27,6 +27,7 @@ router.get("/user/details/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.get
 
 router.get("/sso/federated", requierePermiso('USR_VIEW_ONE', 'READ'), usr.getFederateDataController);
 
+router.get("/utl/file/download", usr.downloadStream)
 
 
 export default router;

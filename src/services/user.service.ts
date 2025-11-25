@@ -37,7 +37,8 @@ class UserService {
                 status: true,
                 last_login: true,
                 biografia: true,
-                SSO_USER_BUSINESS_UNIT_T: true
+                SSO_USER_BUSINESS_UNIT_T: true,
+                last_update_avatar: true
             }
         });
         const tempData = data.map((x) => {
@@ -67,6 +68,7 @@ class UserService {
                 status: true,
                 last_login: true,
                 biografia: true,
+                last_update_avatar: true,
                 SSO_AUTH_USER_PREFERENCES_T: true,
                 SSO_USER_BUSINESS_UNIT_T: {
                     select: {
@@ -232,6 +234,7 @@ class UserService {
             where: { user_id: id },
             data: {
                 profile_picture: urlImage,
+                last_update_avatar: new Date()
             }
         });
 
@@ -269,13 +272,15 @@ class UserService {
                 biografia: data.biografia,
             }
         });
-        await prisma.sSO_USER_BUSINESS_UNIT_T.update({
-            where: { id: usrUpt?.id_user_bu ?? "" },
-            data: {
-                department: data.department,
-                job_title: data.job_title
-            }
-        });
+        if (usrUpt.id_user_bu) {
+            await prisma.sSO_USER_BUSINESS_UNIT_T.update({
+                where: { id: usrUpt?.id_user_bu ?? "" },
+                data: {
+                    department: data.department,
+                    job_title: data.job_title
+                }
+            });
+        }
 
         return await this.getUserOne(id);
     }
@@ -411,9 +416,6 @@ class UserService {
             ...clientData
         }
     }
-
-   
-
 
 
 }

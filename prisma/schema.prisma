@@ -120,6 +120,7 @@ model SSO_AUTH_USERS_T {
   id_user_bu                     String?                          @db.Uuid
   id_user_preference             String?                          @db.Uuid
   id_user_2fa                    String?                          @db.Uuid
+  last_update_avatar             DateTime?                        @db.Timestamp(6)
   SSO_AUTH_ACCESS_T              SSO_AUTH_ACCESS_T[]
   SSO_AUTH_AUTHORIZATION_CODES_T SSO_AUTH_AUTHORIZATION_CODES_T[]
   SSO_AUTH_TOKEN_T               SSO_AUTH_TOKEN_T[]

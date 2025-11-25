@@ -13,6 +13,8 @@ export const getRolsController = async (req: Request, res: Response) => {
             code: 200,
             statusCode: 200,
             data: rols.items,
+            page,
+            pageSize: size,
             total: rols.total
         });
     } catch (error: any) {

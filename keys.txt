@@ -1,24 +1,9 @@
-📧 Email: admin@admin.com
-🔑 Password: $FBHp94DEyUq2
-📱 APP: SSO
-🆔 CLIENT: sso:1754883819643:web:e3769295ca4efbb85789a5
-🔐 SECRET: e2343f84d66086c7af8b44a3eea01d4a
-
-
-
----Agregar  datos de negocio en request de all users
----Agregar las update en tablas y request a apps
----traer en usuario detalle cantidad de logins
----traer en usuario si esta activo el 2fa
-lista de usuarios disponibles de asignar en rol
----en el rol agregar los permisos disponibles
-
-
-
-
 ✅ Usuario creado correctamente
    📧 Email: admin@admin.com
    🔑 Password: $FBHp94DEyUq2
+🛡️ Rol SSO Administrator asignado a admin@admin.com
+🔑 Client credentials generadas:
    📱 APP: SSO
-   🆔 CLIENT: sso:1757992792070:web:5e5e0a39c8de500be10ebc
-   🔐 SECRET: 5fa5e327b5defb367b75804ca7445c80
+   🆔 CLIENT: sso:1760923366412:web:0644ff2218ff1379e90c81
+   🔐 SECRET: f4f8fabde5c5cc8639eb75c93213ce27
+🔑 Grants asignados a SSO

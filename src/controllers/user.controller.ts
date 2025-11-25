@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import fs from "fs";
 import { usrService } from "@services/user.service";
 import { hashPassword } from "@utils/bcrypt";
 import { OAuthError } from "oauth2-server";
@@ -68,7 +69,6 @@ export const createUserController = async (req: Request, res: Response) => {
         res.status(error.statusCode || 500).json(error);
     }
 };
-
 
 export const updateImgController = async (req: Request, res: Response) => {
     try {
@@ -177,5 +177,28 @@ export const getFederateDataController = async (req: Request, res: Response) => 
         })
     } catch (error: any) {
         res.status(error.statusCode || 500).json(error);
+    }
+}
+
+export const downloadStream = async (req: Request, res: Response) => {
+    try {
+        //users/obiuiwhalha6zww2ufsh
+        const url = getStorageProvider().getImageUrl(req.query.file as string);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Error al descargar: ${response.statusText}`);
+
+        res.writeHead(200, {
+            'Content-Type': 'application/octet-stream', // Or the appropriate MIME type
+            'Content-Disposition': `attachment; filename="${req.query.fileName || 'downloaded_file'}.png"`,
+        })
+        res.end(Buffer.from(await response.arrayBuffer()));
+
+    } catch (error) {
+        console.error("Error al descargar imagen:", error);
+        res.status(500).json({
+            code: 500,
+            message: "Error al descargar imagen",
+        });
+
     }
 }

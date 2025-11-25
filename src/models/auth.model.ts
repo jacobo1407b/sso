@@ -204,6 +204,7 @@ const getRefreshToken = async (refreshToken: string) => {
             status: true,
             last_login: true,
             biografia: true,
+            last_update_avatar: true,
             SSO_AUTH_USER_PREFERENCES_T: true,
             SSO_USER_BUSINESS_UNIT_T: {
                 select: {

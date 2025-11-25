@@ -6,7 +6,7 @@ class RoleService {
     /** Obtiene todos los roles */
     async getRoles(page = 1, pageSize = 20, rol_code?: string) {
         const where: any = {};
-        if (rol_code) where.rol_code = rol_code;
+        if (rol_code) where.role_code = rol_code;
         const count = await prisma.sSO_AUTH_ROLES_T.count();
         const roles = await prisma.sSO_AUTH_ROLES_T.findMany({
             where,
