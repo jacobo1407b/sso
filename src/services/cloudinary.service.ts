@@ -27,6 +27,6 @@ export class CloudinaryService implements ImageStorage {
     }
 
     getImageUrl(publicId: string): string {
-        return cloudinary.url(publicId, { secure: true });
+        return cloudinary.url(`${publicId}`, { secure: true });
     }
 }

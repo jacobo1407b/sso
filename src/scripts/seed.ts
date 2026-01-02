@@ -120,7 +120,7 @@ async function main() {
             id: true
         }
     });
-    const app_grants = grants.map((x) => {
+    const app_grants = grants.map((x:any) => {
         return {
             client_id: ssoClient.client_id,
             grant_id: x.id

@@ -27,9 +27,10 @@ export const putImageClient = async (req: Request, res: Response) => {
             code: 400,
             name: "BAD_REQUEST_NOT_IMAGE"
         });
+        const filename = req.query.pub ? (req.query.pub as string).split("/")[1] : undefined;
         const { publicId } = await storage.uploadImage(req.file.buffer, {
             folder: "app",
-            public_id: req.query.pub,
+            public_id: filename,
             overwrite: true,
             invalidate: true
         });
@@ -96,7 +97,7 @@ export const createGrantsController = async (req: Request, res: Response) => {
         const deletesArr: Array<any> = grantsType.filter((x: any) => x.type === "DELETE");
         const updtArr: Array<any> = grantsType.filter((x: any) => x.type === "UPDATE");
         if (deletesArr.length !== 0) {
-           await clientService.revokeGrants(id, deletesArr);
+            await clientService.revokeGrants(id, deletesArr);
         }
         if (updtArr.length !== 0) {
             await clientService.setGrants(id, updtArr);
@@ -128,7 +129,7 @@ export const updateClientController = async (req: Request, res: Response) => {
 
 export const deleteClientController = async (req: Request, res: Response) => {
     try {
-        
+
         await clientService.deleteClient(req.params.id);
         res.status(201).json({
             code: 201,

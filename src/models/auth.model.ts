@@ -86,7 +86,8 @@ const saveToken = async (token: any, client: any, user: any) => {
                     rols: user.roles,
                     log_status: "SUCCESS",
                     email: user.email,
-                    profile_picture: user.profile_picture
+                    profile_picture: user.profile_picture,
+                    last_update_avatar: user.last_update_avatar ? new Date(user.last_update_avatar).getTime() : null
                 },
                 SECRET_KEY,
                 //{ expiresIn: Math.floor((token.accessTokenExpiresAt.getTime() - Date.now()) / 1000) }
@@ -314,6 +315,7 @@ const getUser = async (username: any, passwordP: any) => {
             last_login: true,
             biografia: true,
             password: true,
+            last_update_avatar: true,
             SSO_AUTH_USER_PREFERENCES_T: true,
             SSO_USER_BUSINESS_UNIT_T: {
                 select: {

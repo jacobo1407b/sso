@@ -116,11 +116,11 @@ model SSO_AUTH_USERS_T {
   created_date                   DateTime?                        @default(now()) @db.Timestamp(6)
   password_recovery_date         DateTime?                        @db.Timestamp(6)
   last_password_change           String?                          @db.VarChar(50)
+  last_update_avatar             DateTime?                        @db.Timestamp(6)
   authorization_code             String?                          @db.VarChar(20)
   id_user_bu                     String?                          @db.Uuid
   id_user_preference             String?                          @db.Uuid
   id_user_2fa                    String?                          @db.Uuid
-  last_update_avatar             DateTime?                        @db.Timestamp(6)
   SSO_AUTH_ACCESS_T              SSO_AUTH_ACCESS_T[]
   SSO_AUTH_AUTHORIZATION_CODES_T SSO_AUTH_AUTHORIZATION_CODES_T[]
   SSO_AUTH_TOKEN_T               SSO_AUTH_TOKEN_T[]
@@ -246,6 +246,6 @@ model SSO_AUTH_USER_2FA {
   failed_attempts   Int?               @default(0)
   last_attempt_date DateTime?          @db.Timestamptz(6)
   expires_date      DateTime?          @db.Timestamptz(6)
-  log_in_status     String?            @db.VarChar(20)
+  log_in_status     String?             @db.VarChar(80)
   SSO_AUTH_USERS_T  SSO_AUTH_USERS_T[]
 }

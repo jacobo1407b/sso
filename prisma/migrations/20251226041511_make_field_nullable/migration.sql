@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "SSO_AUTH_USER_2FA" ALTER COLUMN "log_in_status" DROP NOT NULL;

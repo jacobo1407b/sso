@@ -45,7 +45,8 @@ class UserService {
             const { SSO_USER_BUSINESS_UNIT_T, ...all } = x;
             return {
                 ...all,
-                userBusiness: SSO_USER_BUSINESS_UNIT_T
+                userBusiness: SSO_USER_BUSINESS_UNIT_T,
+                last_update_avatar: x.last_update_avatar ? new Date(x.last_update_avatar).getTime() : null
             }
         })
         return { data: tempData, count }
@@ -114,6 +115,7 @@ class UserService {
             status: usr?.status,
             last_login: usr?.last_login,
             biografia: usr?.biografia,
+            last_update_avatar: usr?.last_update_avatar ? new Date(usr.last_update_avatar) : null,
             preferences: {
                 ...usr?.SSO_AUTH_USER_PREFERENCES_T
             },

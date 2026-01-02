@@ -43,7 +43,7 @@ export const errorHandlerValidate = (req: Request, res: Response, next: NextFunc
         return next(new OAuthError('Error de validación en campos esperados', {
             code: 400,
             name: 'VALIDATION_ERROR',
-            details: errores.array().map((y) => `${y.type}:${y.msg}`)
+            details: errores
         }));
     }
 

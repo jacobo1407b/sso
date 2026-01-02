@@ -1,15 +1,24 @@
 import prisma from "@config/prisma";
+import { Prisma } from '@prisma/client';
 import { OAuthError } from "oauth2-server";
 
 
 class RoleService {
     /** Obtiene todos los roles */
     async getRoles(page = 1, pageSize = 20, rol_code?: string) {
-        const where: any = {};
-        if (rol_code) where.role_code = rol_code;
+
+        const whereClause = rol_code
+            ? {
+                role_code: {
+                    contains: rol_code,
+                    mode: Prisma.QueryMode.insensitive
+                }
+            }
+            : undefined;
+
         const count = await prisma.sSO_AUTH_ROLES_T.count();
         const roles = await prisma.sSO_AUTH_ROLES_T.findMany({
-            where,
+            where: whereClause,
             take: pageSize,
             skip: (page - 1) * pageSize
         });
@@ -57,6 +66,7 @@ class RoleService {
                         name: true,
                         email: true,
                         last_name: true,
+                        last_update_avatar: true,
                         second_last_name: true,
                         profile_picture: true,
                         SSO_USER_BUSINESS_UNIT_T: {
@@ -100,6 +110,7 @@ class RoleService {
                 profile_picture: x.SSO_AUTH_USERS_T.profile_picture,
                 department: x.SSO_AUTH_USERS_T.SSO_USER_BUSINESS_UNIT_T?.department,
                 job_title: x.SSO_AUTH_USERS_T.SSO_USER_BUSINESS_UNIT_T?.job_title,
+                last_update_avatar: x.SSO_AUTH_USERS_T?.last_update_avatar ? new Date(x.SSO_AUTH_USERS_T?.last_update_avatar).getTime() : null,
                 grant_date: x.created_date
             }
         });

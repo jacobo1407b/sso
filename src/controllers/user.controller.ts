@@ -80,10 +80,11 @@ export const updateImgController = async (req: Request, res: Response) => {
             })
         }
         const storage = getStorageProvider();
+        const filename = req.query.pub ? (req.query.pub as string).split("/")[1] : undefined;
         const factoryUpload = await storage.uploadImage(req.file?.buffer,
             {
                 folder: "users",
-                public_id: req.query.pub,
+                public_id: filename,
                 overwrite: true,
                 invalidate: true
 
@@ -183,6 +184,7 @@ export const getFederateDataController = async (req: Request, res: Response) => 
 export const downloadStream = async (req: Request, res: Response) => {
     try {
         //users/obiuiwhalha6zww2ufsh
+        //res.cloudinary.com/dn30ekshs/image/upload/obiuiwhalha6zww2ufsh?_a=BAMAK+hK0
         const url = getStorageProvider().getImageUrl(req.query.file as string);
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Error al descargar: ${response.statusText}`);
