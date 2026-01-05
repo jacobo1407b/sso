@@ -31,7 +31,8 @@ const getClient = async (clientId: string, clientSecret: string) => {
 
     if (!result) throw new OAuthError("No se encontro una client con este identificador", {
         code: 404,
-        name: "CL_FN"
+        name: "CLIENT_NOT_FOUND",
+        details: "SYS"
     });
 
 
@@ -52,8 +53,9 @@ const saveToken = async (token: any, client: any, user: any) => {
     const expiresInOneMinute = Date.now() + 30 * 60 * 1000;
     if (user.user_id) {
         if (user.totp && user.log_status === "WAIT") throw new OAuthError("MFA en proceso", {
-            code: 404,
-            name: "MFA_WAIT"
+            code: 403,
+            name: "MFA_WAIT",
+            details: "USER"
         });
         if (user.totp && user.log_status === null) {
             accessToken = jwt.sign(
@@ -72,7 +74,7 @@ const saveToken = async (token: any, client: any, user: any) => {
             await prisma.sSO_AUTH_USER_2FA.update({
                 where: { id: user.totp_id },
                 data: {
-                    log_in_status:"WAIT"
+                    log_in_status: "WAIT"
                 }
             });
 
@@ -145,7 +147,8 @@ const getAccessToken = async (accessToken: string) => {
 
     if (!tokenData) throw new OAuthError("Token no valido", {
         code: 404,
-        name: "TKN_FN"
+        name: "TOKEN_NOT_FOUND",
+        details: "SYS"
     });
 
     const payload = jwt.verify(accessToken, SECRET_KEY);
@@ -167,7 +170,8 @@ const getRefreshToken = async (refreshToken: string) => {
     });
     if (!tokenDataRefresh) throw new OAuthError("Refresh_token no valido", {
         code: 404,
-        name: "RFS_FN"
+        name: "REFRESH_NOT_FOUND",
+        details: "SYS"
     });
     const clientPrisma = await prisma.sSO_AUTH_CLIENTS_T.findFirst({
         where: { client_id: tokenDataRefresh?.client_id ?? "" },
@@ -245,8 +249,9 @@ const getRefreshToken = async (refreshToken: string) => {
         }
     });
     if (userData?.SSO_AUTH_USER_2FA?.id !== null && userData?.SSO_AUTH_USER_2FA?.log_in_status === "WAIT") throw new OAuthError("MFA en proceso", {
-        code: 404,
-        name: "MFA_WAIT"
+        code: 403,
+        name: "MFA_WAIT",
+        details: "USER"
     });
 
     const { SSO_AUTH_USER_PREFERENCES_T, SSO_USER_BUSINESS_UNIT_T, SSO_AUTH_ACCESS_T, ...userWithoutPassword } = userData ?? {};
@@ -357,12 +362,14 @@ const getUser = async (username: any, passwordP: any) => {
     //logged_status = user?.SSO_AUTH_USER_2FA?.log_in_status;
     if (!user) throw new OAuthError("Usuario no encontrado", {
         code: 404,
-        name: "USR_FN"
+        name: "USR_NOT_FOUND",
+        details: "USER"
     });
 
     if (!await comparePawd(passwordP, user?.password ?? "")) throw new OAuthError("Contraseña incorrecta", {
         code: 403,
-        name: "USR_PASS"
+        name: "BAD_PASS",
+        details: 'USER'
     });
     /*if (user.SSO_AUTH_USER_2FA?.id && user.SSO_AUTH_USER_2FA.log_in_status === "SUCCESS") {
         logged_status = null;
@@ -486,7 +493,8 @@ const getAuthorizationCode = async (code: any) => {
     });
     if (!codeDb) throw new OAuthError("No se encontro un code", {
         code: 404,
-        name: "CODE_FN"
+        name: "CODE_NOT_FOUND",
+        details: "USER"
     });
 
     const { SSO_AUTH_USER_PREFERENCES_T, SSO_USER_BUSINESS_UNIT_T, SSO_AUTH_ACCESS_T, ...userAll } = codeDb?.SSO_AUTH_USERS_T ?? {};

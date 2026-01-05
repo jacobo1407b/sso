@@ -1,7 +1,8 @@
 import express from "express";
-import { Request, Response,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import pool from "@config/db";
 import dotenv from "dotenv";
+
 import cors from "cors";
 import { setupSwagger } from "@config/swagger";
 
@@ -13,7 +14,11 @@ import companyRoutes from "@routes/company.router";
 import mfa from '@routes/2fa.router';
 
 import { authenticateRequest } from "@middleware/authMiddleware";
+import { errorHandler } from "@middleware/errorMiddleware";
 import { startConfig } from "@config/oauth";
+
+
+
 
 
 dotenv.config();
@@ -37,10 +42,7 @@ app.use('/oauth', oauthRoutes);
 app.get('/secure', authenticateRequest, (req, res) => {
     res.send('Secure data');
 });
-app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
-    console.error(err);
-    res.status(err.statusCode || 500).json(err);
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

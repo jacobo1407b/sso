@@ -52,7 +52,8 @@ class ClientService {
 
         if (cliendValid !== null) throw new OAuthError(`Ya existe un APP_NAME con el nombre ${appName}`, {
             code: 409,
-            name: 'CLT_EX'
+            name: 'APP_ALREADY',
+            details: "USER"
         });
 
         const client = await prisma.sSO_AUTH_CLIENTS_T.create({
@@ -175,7 +176,8 @@ class ClientService {
         
         if (verify?.app_name === "SSO") throw new OAuthError(`No se puede eliminar esta aplicación`, {
             code: 409,
-            name: 'DNT_DELET_SSO'
+            name: 'DNT_DELET_SSO',
+            details: "USER"
         });
         await prisma.sSO_AUTH_CLIENT_GRANTS_T.deleteMany({
             where: { client_id: id }

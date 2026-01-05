@@ -1,0 +1,124 @@
+VALIDATION_ERROR
+code: 400,
+name: 'VALIDATION_ERROR',
+details: errores
+----------------------------------
+
+code: 403,
+name: 'UN_AUTORIZE',
+details: USER 'No roles found in token'
+------------------------------------
+
+code: 403,
+name: 'UN_AUTORIZE',
+details: USER `Access denied for 
+---------------------------------------------
+
+code: 404,
+name: "CLIENT_NOT_FOUND",
+details: "SYS"
+---------------------------------------------
+
+code: 403,
+name: "MFA_WAIT",
+details:"USER"
+---------------------------------------
+code: 404,
+name: "TOKEN_NOT_FOUND",
+details: "SYS"
+------------------------------------------
+code: 404,
+name: "REFRESH_NOT_FOUND",
+details: "SYS"
+---------------------------------------
+
+
+code: 404,
+name: "USR_NOT_FOUND",
+details: "USER"
+-----------------------------------------
+
+code: 403,
+name: "BAD_PASS",
+details: 'USER'
+----------------------------------------
+
+
+code: 404,
+name: "CODE_NOT_FOUND",
+details: "USER"
+
+--------------------------------------
+
+code: 409,
+name: 'APP_ALREADY',
+details: "USER"
+--------------------------------------
+
+code: 409,
+name: 'DNT_DELET_SSO',
+details: "USER",
+
+---------------------------------------
+
+code: 400,
+name: "ROL_ALREADY",
+details: "USER"
+-----------------------------------
+
+code: 400,
+name: "DNT_DELETE_ROL_SYS",
+details: "USER"
+------------------------------------------
+
+code: 409,
+name: "EMAIL_ALREADY",
+details: "USER"
+-------------------------------------------
+code: 403,
+name: 'ERR_RETRIEVING_USER',
+details: "USER"
+---------------------------------------------
+code: 403,
+name: 'ERR_2FA_TOTP_MAX_ATTEMPTS',
+details: "USER"  
+
+-----------------------------------------
+code: 403,
+name: 'ERR_2FA_TOTP_LOCKED',
+details: "USER"
+-----------------------------------------
+
+code: 400,
+name: "BAD_REQUEST_NOT_IMAGE",
+details:"USER"
+-----------------------------------------
+
+code: 400,
+name: "BAD_REQUEST_NULL_FIELDS",
+details: "USER"
+
+*************************************************OTROS********************
+-USER:USERNAME_REQUIRED
+-USER:EMAIL_INVALID
+-USER:PASSWORD_SMAL
+-USER:DATE_INVALID
+-USER:PASSWORD_REQUIRED
+-USER_PASSWORD_INVALID
+
+-SYS:PAGE_ISNAN
+-SYS:PAGE_SIZE_TO_LONG
+-SYS:USER_ISNTXT
+
+-USER:NAME_REQUIRED
+-USER:LAST_NAME_REQUIRED
+-USER:PHONE_INVALID
+
+-SYS:ID_INVALID
+-SYS:PU_INVALID
+
+-USER:FILE_REQUIRED
+-USER:FILE_TYPE_INVALID
+
+
+

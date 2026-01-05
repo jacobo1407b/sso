@@ -151,7 +151,8 @@ class UserService {
         if (existingUser) {
             throw new OAuthError("El email ya está registrado.", {
                 code: 409,
-                name: "USR_EMEXT"
+                name: "EMAIL_ALREADY",
+                details: "USER"
             });
         }
         const rolUser = await prisma.sSO_AUTH_ROLES_T.findFirst({

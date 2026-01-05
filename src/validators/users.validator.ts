@@ -2,14 +2,14 @@ import { checkSchema } from 'express-validator';
 
 export const validarUsuario = checkSchema({
     username: {
-        notEmpty: { errorMessage: 'Username es obligatorio' },
+        notEmpty: { errorMessage: 'USER:USERNAME_REQUIRED' },
         isString: true,
         trim: true,
         escape: true,
         stripLow: true
     },
     email: {
-        isEmail: { errorMessage: 'Email inválido' },
+        isEmail: { errorMessage: 'USER:EMAIL_INVALID' },
         isString: true,
         trim: true,
         escape: true,
@@ -18,7 +18,7 @@ export const validarUsuario = checkSchema({
     password: {
         isLength: {
             options: { min: 12 },
-            errorMessage: 'Password mínimo 12 caracteres'
+            errorMessage: 'USER:PASSWORD_SMAL'
         },
         isString: true,
         trim: true,
@@ -26,7 +26,7 @@ export const validarUsuario = checkSchema({
         stripLow: true
     },
     hire_date: {
-        isISO8601: { errorMessage: 'Fecha inválida (formato ISO)' }
+        isISO8601: { errorMessage: 'USER:DATE_INVALID' }
     }
 });
 
@@ -37,7 +37,7 @@ export const getUser = checkSchema({
         optional: true,
         isInt: {
             options: { min: 1 },
-            errorMessage: 'page debe ser un entero ≥ 1'
+            errorMessage: 'SYS:PAGE_ISNAN'
         },
         toInt: true
     },
@@ -46,7 +46,7 @@ export const getUser = checkSchema({
         optional: true,
         isInt: {
             options: { min: 1, max: 100 },
-            errorMessage: 'pageSize debe estar entre 1 y 100'
+            errorMessage: 'SYS:PAGE_SIZE_TO_LONG'
         },
         toInt: true
     },
@@ -54,7 +54,7 @@ export const getUser = checkSchema({
         in: ['query'],
         optional: true,
         isString: {
-            errorMessage: 'user debe ser texto'
+            errorMessage: 'SYS:USER_ISNTXT'
         },
         trim: true,
         escape: true,
@@ -65,7 +65,7 @@ export const getUser = checkSchema({
 export const PerfilUsuario = checkSchema({
     name: {
         in: ['body'],
-        notEmpty: { errorMessage: 'El nombre es obligatorio' },
+        notEmpty: { errorMessage: 'USER:NAME_REQUIRED' },
         isString: true,
         trim: true,
         escape: true,
@@ -73,7 +73,7 @@ export const PerfilUsuario = checkSchema({
     },
     last_name: {
         in: ['body'],
-        notEmpty: { errorMessage: 'El apellido paterno es obligatorio' },
+        notEmpty: { errorMessage: 'USER:LAST_NAME_REQUIRED' },
         isString: true,
         trim: true,
         escape: true,
@@ -92,7 +92,7 @@ export const PerfilUsuario = checkSchema({
         optional: true,
         matches: {
             options: [/^\d{10}$/],
-            errorMessage: 'El teléfono debe tener exactamente 10 dígitos. Ejemplo: 5512345678'
+            errorMessage: 'USER:PHONE_INVALID'
         },
         trim: true,
         stripLow: true
@@ -104,7 +104,7 @@ export const esquemaUploadArchivo = checkSchema({
     // Path param: id
     id: {
         in: ['params'],
-        notEmpty: { errorMessage: 'El ID es obligatorio' },
+        notEmpty: { errorMessage: 'SYS:ID_INVALID' },
         isString: true,
         trim: true,
         escape: true
@@ -115,7 +115,7 @@ export const esquemaUploadArchivo = checkSchema({
         in: ['query'],
         optional: true,
         isString: {
-            errorMessage: 'pub debe ser texto'
+            errorMessage: 'SYS:PU_INVALID'
         },
         trim: true,
         escape: true,
@@ -127,10 +127,9 @@ export const esquemaUploadArchivo = checkSchema({
         in: ['body'],
         custom: {
             options: (_value, { req }) => {
-                if (!req.file) throw new Error('Se requiere un archivo');
+                if (!req.file) throw new Error('USER:FILE_REQUIRED');
                 const tiposPermitidos = ['image/png', 'image/jpeg'];
-                if (!tiposPermitidos.includes(req.file.mimetype)) throw new Error('Tipo de archivo no permitido');
-
+                if (!tiposPermitidos.includes(req.file.mimetype)) throw new Error('USER:FILE_TYPE_INVALID');
                 return true;
             }
         }
@@ -142,7 +141,7 @@ export const CambioPassword = checkSchema({
     // Path param: id
     id: {
         in: ['params'],
-        notEmpty: { errorMessage: 'El ID es obligatorio' },
+        notEmpty: { errorMessage: 'SYS:ID_INVALID' },
         isString: true,
         trim: true,
         escape: true
@@ -161,16 +160,16 @@ export const CambioPassword = checkSchema({
     // Body param: pass (nueva contraseña)
     pass: {
         in: ['body'],
-        notEmpty: { errorMessage: 'La nueva contraseña es obligatoria' },
+        notEmpty: { errorMessage: 'USER:PASSWORD_REQUIRED' },
         isLength: {
             options: { min: 12 },
-            errorMessage: 'La nueva contraseña debe tener al menos 12 caracteres'
+            errorMessage: 'USER:PASSWORD_SMAL'
         },
         custom: {
             options: (value) => {
                 const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/;
                 if (!regex.test(value)) {
-                    throw new Error('La nueva contraseña debe incluir mayúsculas, minúsculas, números y símbolos');
+                    throw new Error('USER_PASSWORD_INVALID');
                 }
                 return true;
             }

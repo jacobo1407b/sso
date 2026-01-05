@@ -168,7 +168,8 @@ class RoleService {
 
         if (findRol !== null) throw new OAuthError(`Ya existe un rol con el codigo ${data.rol_code}`, {
             code: 400,
-            name: "ROL_EXIST"
+            name: "ROL_ALREADY",
+            details: "USER"
         });
 
         const rol = await prisma.sSO_AUTH_ROLES_T.create({
@@ -196,7 +197,8 @@ class RoleService {
         });
         if (rol?.is_system) throw new OAuthError('No se puede eliminar un rol de sistema', {
             code: 400,
-            name: "ROL_DEL"
+            name: "DNT_DELETE_ROL_SYS",
+            details: "USER"
         });
         await prisma.sSO_AUTH_ACCESS_T.deleteMany({
             where: { role_id: idRol }
