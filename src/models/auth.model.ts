@@ -65,7 +65,8 @@ const saveToken = async (token: any, client: any, user: any) => {
                     totp_id: user.totp_id,
                     log_in_status: "WAIT",
                     email: user.email,
-                    profile_picture: user.profile_picture
+                    profile_picture: user.profile_picture,
+                    last_update_avatar: user.last_update_avatar ? new Date(user.last_update_avatar).getTime() : null
                 },
                 SECRET_KEY,
                 //{ expiresIn: Math.floor((token.accessTokenExpiresAt.getTime() - Date.now()) / 1000) }

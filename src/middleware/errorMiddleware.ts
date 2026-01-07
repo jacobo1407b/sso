@@ -6,9 +6,9 @@ import { JsonWebTokenError, TokenExpiredError, NotBeforeError } from "jsonwebtok
 const prismaCodes = [{ code: "P2002", status: 409, del: 'USER' }, { code: "P2025", status: 404, del: 'USER' }, { code: "P2023", status: 404, del: 'USER' }]
 
 export const errorHandler = (err: any, req: Request, res: Response, _next: NextFunction) => {
-    console.log(err.code)
+    /*console.log(err.code)
     console.log(err.message)
-    console.log(err.name)
+    console.log(err.name)*/
     let responseCode = {
         status: 500,
         message: "Internal Server Error",
