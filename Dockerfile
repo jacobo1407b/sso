@@ -27,6 +27,7 @@ WORKDIR /app
 
 # Establecer entorno de producción
 ENV NODE_ENV="production"
+ENV PORT=3000
 
 # Copiar solo los archivos necesarios de la etapa anterior
 # 1. Copiamos el build generado
