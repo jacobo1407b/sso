@@ -17,6 +17,7 @@ COPY . .
 
 # Ejecutar el build (esto genera la carpeta /dist o /build)
 RUN yarn build
+RUN mkdir -p dist/config && cp -r src/config/docs dist/config/
 
 
 # Etapa 2: Ejecución (Runner)
@@ -31,6 +32,7 @@ ENV NODE_ENV="production"
 # 1. Copiamos el build generado
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+##COPY --from=builder /app/src/config ./prisma
 COPY --from=builder /app/tsconfig.json ./
 # 2. Copiamos los archivos de dependencias
 COPY --from=builder /app/package.json /app/yarn.lock ./
