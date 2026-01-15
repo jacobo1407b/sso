@@ -24,6 +24,8 @@ WORKDIR /app
 
 # Establecer entorno de producción
 ENV NODE_ENV=production
+ENV DATABASE_URL=postgresql://neondb_owner:npg_nM5FqHN8IvdV@ep-soft-cherry-a616chu6-pooler.us-west-2.aws.neon.tech/neondb?sslmode=require
+
 
 # Copiar solo los archivos necesarios de la etapa anterior
 # 1. Copiamos el build generado
