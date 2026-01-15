@@ -10,7 +10,6 @@ LABEL fly_launch_runtime="Node.js/Prisma"
 WORKDIR /app
 
 # Set production environment
-ENV NODE_ENV="production"
 ARG YARN_VERSION=1.22.21
 RUN npm install -g yarn@$YARN_VERSION --force
 
@@ -31,8 +30,9 @@ COPY prisma .
 RUN npx prisma generate
 
 # Copy application code
-COPY . .
-
+COPY --from=build /app/dist /app/dist
+COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/package.json /app/package.json
 
 # Final stage for app image
 FROM base
