@@ -5,10 +5,10 @@ import speakeasy from "speakeasy";
 class Security2FA {
 
 
-    async generateSecret() {
+    async generateSecret(username?: string) {
         const temp_secret = speakeasy.generateSecret({
-            name: process.env.SECRET_SPEAKEASY,
-            issuer: process.env.ISSUER_SPEAKEASY
+            name: `${process.env.SECRET_SPEAKEASY} (${username})`,
+            issuer: `${process.env.SECRET_SPEAKEASY} (${username})`
         });
 
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -45,7 +45,7 @@ class Security2FA {
     }
 
     async setSuccess(id: string) {
-         await prisma.sSO_AUTH_USER_2FA.update({
+        await prisma.sSO_AUTH_USER_2FA.update({
             where: { id: id },
             data: {
                 verified_status: "VERIFIED",
@@ -55,7 +55,7 @@ class Security2FA {
                 log_in_status: "SUCCESS"
             }
         });
-        
+
     }
 
     async setUser2fa(user: string, fa: string) {

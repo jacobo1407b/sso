@@ -1,3 +1,4 @@
+-------------------------------------------------------DEV----------------------------
 ✅ Usuario creado correctamente
    📧 Email: admin@admin.com
    🔑 Password: $FBHp94DEyUq2
@@ -6,4 +7,14 @@
    📱 APP: SSO
    🆔 CLIENT: sso:1760923366412:web:0644ff2218ff1379e90c81
    🔐 SECRET: f4f8fabde5c5cc8639eb75c93213ce27
+🔑 Grants asignados a SSO
+-------------------------------------------------PROD----------------------------------
+✅ Usuario creado correctamente
+   📧 Email: admin@admin.com
+   🔑 Password: $FBHp94DEyUq2
+🛡️ Rol SSO Administrator asignado a admin@admin.com
+🔑 Client credentials generadas:
+   📱 APP: SSO
+   🆔 CLIENT: sso:1767829542729:web:885e5f18ee87cf54ae6825
+   🔐 SECRET: d31cb72327088a171c622081cdf5bab2
 🔑 Grants asignados a SSO

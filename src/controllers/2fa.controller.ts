@@ -9,7 +9,7 @@ export const generateSecretController = async (req: Request, res: Response) => {
     if (usr?.id_user_2fa) {
         await faService.delete2fa(usr.id_user_2fa, req.user?.userId ?? "");
     }
-    const fa = await faService.generateSecret();
+    const fa = await faService.generateSecret(req.user?.username);
     await faService.setUser2fa(req.user?.userId ?? "", fa.id);
 
     res.status(201).json({
