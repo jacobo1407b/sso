@@ -1,0 +1,28 @@
+# Node modules
+node_modules/
+
+# Build artifacts
+dist/
+
+
+# Environment variables
+.env
+.env.*
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
