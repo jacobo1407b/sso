@@ -30,6 +30,7 @@ ENV NODE_ENV="production"
 # Copiar solo los archivos necesarios de la etapa anterior
 # 1. Copiamos el build generado
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 # 2. Copiamos los archivos de dependencias
 COPY --from=builder /app/package.json /app/yarn.lock ./
 
