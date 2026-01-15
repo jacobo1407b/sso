@@ -9,7 +9,7 @@ COPY package.json yarn.lock ./
 
 # Instalar todas las dependencias (incluyendo devDependencies para el build)
 RUN yarn install --frozen-lockfile
-ENV NODE_ENV="production"
+
 ENV DATABASE_URL="postgresql://neondb_owner:npg_nM5FqHN8IvdV@ep-soft-cherry-a616chu6-pooler.us-west-2.aws.neon.tech/neondb?sslmode=require"
 
 # Copiar el resto del código fuente
