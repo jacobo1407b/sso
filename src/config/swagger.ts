@@ -8,7 +8,7 @@ import { Express } from 'express';
 const swaggerSpec = swaggerJsdoc(options);*/
 
 export async function setupSwagger(app: Express): Promise<void> {
-  const urlDocs = process.env.NODE_ENV === 'production' ? './src/config/docs/swagger.yaml' : './dist/config/docs/swagger.yaml';
+  const urlDocs = process.env.NODE_ENV === 'development' ? './src/config/docs/swagger.yaml' : './dist/config/docs/swagger.yaml';
   const swaggerDocument = await SwaggerParser.validate(urlDocs);
   const AUTH_HOST = process.env.URL_MAIN || 'https://auth.example.com';
   swaggerDocument.components.securitySchemes.OAuth2.flows.authorizationCode.authorizationUrl = `${AUTH_HOST}/oauth/authorize`;
