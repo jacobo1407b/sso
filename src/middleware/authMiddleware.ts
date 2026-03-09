@@ -12,7 +12,7 @@ const Response = OAuth2Server.Response;
 export const authenticateRequest = (req: Request, res: Response, next: NextFunction) => {
     const request = new Request(req);
     const response = new Response(res);
-    getServer()
+     getServer()
         .authenticate(request, response, { scope: 'read_data write_data' })
         .then((usr) => {
             req.user = {
@@ -40,10 +40,14 @@ export const autorizeReq = (req: Request, res: Response, next: NextFunction) => 
 export const errorHandlerValidate = (req: Request, res: Response, next: NextFunction) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
+        const currentErr = errores.array()[0];
+        const [det, errName] = currentErr.msg.split(":")
+
         return next(new OAuthError('Error de validación en campos esperados', {
             code: 400,
-            name: 'VALIDATION_ERROR',
-            details: errores
+            name: errName,
+            details: det,
+            ctx: currentErr
         }));
     }
 
@@ -65,12 +69,14 @@ type Action = 'READ' | 'CREATE' | 'UPDATE' | 'DELETE';
 export function requierePermiso(resource: string, action: Action) {
     return (req: Request, res: Response, next: NextFunction) => {
         const token = req.user;
+        console.log("---------------------AQUI-----------");
+
 
         if (!token || !token.rols || token.rols.length === 0) {
             next(new OAuthError('No roles found in token', {
                 code: 403,
-                name: 'UN_AUTORIZE',
-                details: 'No roles found in token'
+                name: 'ROLE_UN_TOKEN',
+                details: 'SYS'
             }));
         }
 
@@ -79,12 +85,11 @@ export function requierePermiso(resource: string, action: Action) {
         const hasPermission = token?.rols.some(role =>
             role.policy_permission.includes(permissionCode)
         );
-
         if (!hasPermission) {
             next(new OAuthError(`Access denied for ${permissionCode}`, {
                 code: 403,
-                name: 'UN_AUTORIZE',
-                details: `Access denied for ${permissionCode}`
+                name: 'ROLE_UN_AUTORIZE',
+                details: "SYS"
             }));
         }
 

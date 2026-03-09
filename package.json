@@ -17,6 +17,7 @@
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.0.0",
     "@prisma/client": "^6.9.0",
+    "@types/puppeteer-core": "^7.0.4",
     "bcrypt": "^6.0.0",
     "chalk": "^5.4.1",
     "cloudinary": "^2.7.0",
@@ -29,6 +30,7 @@
     "oauth2-server": "^3.1.1",
     "pg": "^8.16.0",
     "prisma": "^6.9.0",
+    "puppeteer-core": "^24.35.0",
     "speakeasy": "^2.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

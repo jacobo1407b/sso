@@ -8,7 +8,8 @@ const prismaCodes = [{ code: "P2002", status: 409, del: 'USER' }, { code: "P2025
 export const errorHandler = (err: any, req: Request, res: Response, _next: NextFunction) => {
     /*console.log(err.code)
     console.log(err.message)
-    console.log(err.name)*/
+    console.log(err.name)
+    console.log(err.ctx)*/
     let responseCode = {
         status: 500,
         message: "Internal Server Error",
