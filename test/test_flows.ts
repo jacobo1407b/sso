@@ -25,7 +25,7 @@ async function runTests() {
         });
 
         const tokenData: any = await tokenResponse.json();
-        
+
         if (tokenResponse.ok) {
             console.log('✅ Token obtenido con éxito.');
             console.log('🔑 Access Token: Presente');
@@ -38,7 +38,7 @@ async function runTests() {
                 headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
             });
             const userData = await authResponse.json();
-            
+
             if (authResponse.ok) {
                 console.log('✅ Sesión validada. Usuario identificado:', userData.username);
             } else {
@@ -75,3 +75,4 @@ async function runTests() {
 }
 
 runTests();
+//borrar
