@@ -1,35 +1,70 @@
-GetClient:
-  summary: Obtiene un client APP por identificador
-  tags:
-    - Client
-  security:
-    - OAuth2: []
-  parameters:
-    - in: path
-      name: id
+ClientItem:
+  get:
+    summary: Obtiene un client APP por identificador
+    tags:
+      - Client
+    security:
+      - OAuth2: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Cliente obtenido
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                statusCode:
+                  type: integer
+                data:
+                  $ref: '../schemas/ClientResponse.yaml#/ClientSchema'
+  put:
+    summary: Actualiza un cliente por ID
+    tags:
+      - Client
+    security:
+      - OAuth2: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    requestBody:
       required: true
-      schema:
-        type: string
-      description: ID del usuario
-  responses:
-    '200':
-      description: Lista de clients
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                example: 200
-              statusCode:
-                type: integer
-                example: 200
-              data:
-                $ref: '../schemas/ClientResponse.yaml#/ClientSchema'
+            $ref: '../schemas/ClientResponse.yaml#/ClientReq'
+    responses:
+      '201':
+        description: Cliente actualizado
+  delete:
+    summary: Elimina un cliente por ID
+    tags:
+      - Client
+    security:
+      - OAuth2: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    responses:
+      '201':
+        description: Cliente eliminado
+
 CreateClient:
   post:
-    summary: Crear cliente con archivo adjunto
+    summary: Crear cliente
     tags:
       - Client
     security:
@@ -40,24 +75,12 @@ CreateClient:
           schema:
             $ref: '../schemas/ClientResponse.yaml#/ClientReq'
     responses:
-      '200':
-        description: Cliente creado exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  $ref: '../schemas/ClientResponse.yaml#/ClientSchema'
+      '201':
+        description: Cliente creado
+
 GetClients:
   get:
-    summary: Obtiene una lista de clients paginados por 20 filas
+    summary: Obtiene una lista de clients
     tags:
       - Client
     security:
@@ -65,115 +88,12 @@ GetClients:
     parameters:
       - in: query
         name: page
-        required: false
         schema:
           type: integer
-        description: Página actual
-      - in: query
-        name: pageSize
-        required: false
-        schema:
-          type: integer
-        description: Cantidad total por consulta
-      - in: query
-        name: q
-        required: false
-        schema:
-          type: string
-        description: Filtros custom
     responses:
       '200':
-        description: Lista de clients
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 200
-                statusCode:
-                  type: integer
-                  example: 200
-                data:
-                  type: array
-                  items:
-                    $ref: '../schemas/ClientResponse.yaml#/ClientSchema'
-                page:
-                  type: integer
-                  example: 2
-                pageSize:
-                  type: integer
-                  example: 20
-                totalCount:
-                  type: integer
-                  example: 200
-DeleteClient:
-  summary: Elimina un cliente por ID
-  tags:
-    - Client
-  security:
-    - OAuth2: []
-  parameters:
-    - in: path
-      name: id
-      required: true
-      schema:
-        type: string
-      description: ID del cliente a eliminar
-  responses:
-    '200':
-      description: Cliente eliminado exitosamente
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                example: 201
-              statusCode:
-                type: integer
-                example: 201
-              data:
-                type: string
-                nullable: true
-                example: null
-UpdateClient:
-  summary: Actualiza un cliente por ID
-  tags:
-    - Client
-  security:
-    - OAuth2: []
-  parameters:
-    - in: path
-      name: id
-      required: true
-      schema:
-        type: string
-      description: ID del cliente a actualizar
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: '../schemas/ClientResponse.yaml#/ClientReq'
-  responses:
-    '200':
-      description: Cliente actualizado exitosamente
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                example: 201
-              statusCode:
-                type: integer
-                example: 201
-              data:
-                $ref: '../schemas/ClientResponse.yaml#/ClientSchema'
+        description: Lista de clientes
+
 GetGrantsList:
   get:
     summary: Lista todos los grants disponibles
@@ -184,21 +104,7 @@ GetGrantsList:
     responses:
       '200':
         description: Lista de grants
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 200
-                statusCode:
-                  type: integer
-                  example: 200
-                data:
-                  type: array
-                  items:
-                    $ref: '../schemas/Grant.yaml'
+
 PutImage:
   put:
     summary: Cargar o actualizar icono de aplicacion
@@ -212,12 +118,6 @@ PutImage:
         required: true
         schema:
           type: string
-      - name: pub
-        in: query
-        required: false
-        schema:
-          type: string
-        description: id de archivo
     requestBody:
       content:
         multipart/form-data:
@@ -227,21 +127,6 @@ PutImage:
               file:
                 type: string
                 format: binary
-                description: Imagen de aplicacion
     responses:
       '200':
-        description: Cliente creado exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  type: object
-                  nullable: true
+        description: Imagen cargada

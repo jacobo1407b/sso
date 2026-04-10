@@ -10,28 +10,45 @@ const pass = "$FBHp94DEyUq2";
 const userAdm = "admin@admin.com";
 
 async function truncts() {
-    await prisma.sSO_AUTH_TOKEN_T.deleteMany();
-    await prisma.sSO_AUTH_ACCESS_T.deleteMany();
-    await prisma.sSO_AUTH_ROLE_PERMISSIONS_T.deleteMany();
+    // 1. Tablas hijas que dependen de usuarios y de otras tablas
+    await prisma.sSO_AUTH_AUTHORIZATION_CODES_T.deleteMany(); // depende de users + clients
+    await prisma.sSO_AUTH_TOKEN_T.deleteMany();               // depende de users
+    await prisma.sSO_AUTH_ACCESS_T.deleteMany();              // depende de users + roles
+
+    // 2. Relaciones de roles y permisos
+    await prisma.sSO_AUTH_ROLE_PERMISSIONS_T.deleteMany();    // depende de roles + permissions
     await prisma.sSO_AUTH_PERMISSIONS_T.deleteMany();
     await prisma.sSO_AUTH_ROLES_T.deleteMany();
-    await prisma.sSO_AUTH_USERS_T.deleteMany();
 
-    await prisma.sSO_AUTH_CLIENT_GRANTS_T.deleteMany();
+    // 3. Relaciones de clients y grants
+    await prisma.sSO_AUTH_CLIENT_GRANTS_T.deleteMany();       // depende de clients + grants
     await prisma.sSO_AUTH_GRANTS_T.deleteMany();
     await prisma.sSO_AUTH_CLIENTS_T.deleteMany();
-    
+
+    // 4. Ahora sí se puede borrar users (ya no tiene hijos)
+    await prisma.sSO_AUTH_USERS_T.deleteMany();
+
+    // 5. Tablas que users referenciaba como FK (id_user_bu, id_user_preference, id_user_2fa)
+    await prisma.sSO_USER_BUSINESS_UNIT_T.deleteMany();
+    await prisma.sSO_AUTH_USER_PREFERENCES_T.deleteMany();
+    await prisma.sSO_AUTH_USER_2FA.deleteMany();
+
+    // 6. Tablas de soporte de business units
+    await prisma.sSO_BUSINESS_UNIT_BRANCHES_T.deleteMany();
+    await prisma.sSO_BUSINESS_UNITS_T.deleteMany();
+    await prisma.sSO_BUSINESS_LOCATIONS_T.deleteMany();
+
 }
 async function main() {
     await truncts();
     const result = await getStorageProvider().uploadImage(Buffer.from(image, 'base64'), { folder: "apps" });
     const pref = await prisma.sSO_AUTH_USER_PREFERENCES_T.create({
-        data:{
-            theme:"dark",
-            lang:"en"
+        data: {
+            theme: "dark",
+            lang: "en"
         }
     });
-    
+
     const user = await prisma.sSO_AUTH_USERS_T.create({
         data: {
             username: "ADMIN",
@@ -113,14 +130,14 @@ async function main() {
     const grants = await prisma.sSO_AUTH_GRANTS_T.findMany({
         where: {
             grant_code: {
-                in: ['password', 'refresh_token']
+                in: ['password', 'refresh_token', 'client_credentials']
             }
         },
         select: {
             id: true
         }
     });
-    const app_grants = grants.map((x:any) => {
+    const app_grants = grants.map((x: any) => {
         return {
             client_id: ssoClient.client_id,
             grant_id: x.id

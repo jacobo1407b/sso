@@ -1,16 +1,21 @@
 openapi: 3.0.0
 info:
-  title: SSO
+  title: SSO API Documentation
   version: 1.0.0
+  description: API centralizada de Single Sign-On y Gestión de Identidades (IAM).
 
 paths:
+  # --- OAUTH ---
+  /oauth/token:
+    $ref: './paths/oauth.yaml#/Token'
+  /oauth/authorize:
+    $ref: './paths/oauth.yaml#/Authorize'
+  /oauth/revok:
+    $ref: './paths/oauth.yaml#/Revoke'
+
+  # --- CLIENTS ---
   '/api/v1/client/{id}':
-    get:
-      $ref: './paths/client.yaml#/GetClient'
-    delete:
-      $ref: './paths/client.yaml#/DeleteClient'
-    put:
-      $ref: './paths/client.yaml#/UpdateClient'
+    $ref: './paths/client.yaml#/ClientItem'
   /api/v1/client:
     $ref: './paths/client.yaml#/CreateClient'
   /api/v1/clients:
@@ -21,14 +26,13 @@ paths:
     $ref: './paths/client.yaml#/GetGrantsList'
   '/api/v1/client/file/{id}':
     $ref: './paths/client.yaml#/PutImage'
+
+  # --- COMPANY / UNITS ---
   '/api/v1/company/{id}':
-    get:
-      $ref: './paths/units.yaml#/GetCompany'
-    put:
-      $ref: './paths/units.yaml#/PutCompany'
-  '/api/v1/company':
+    $ref: './paths/units.yaml#/CompanyItem'
+  /api/v1/company:
     $ref: './paths/units.yaml#/PostCompany'
-  '/api/v1/companys':
+  /api/v1/companys:
     $ref: './paths/units.yaml#/GeUnits'
   '/api/v1/company/branch/{location}/{branch}':
     $ref: './paths/units.yaml#/PutBranch'
@@ -40,29 +44,38 @@ paths:
     $ref: './paths/units.yaml#/PostBranch'
   '/api/v1/company/file/{id}':
     $ref: './paths/units.yaml#/PutImage'
-  '/api/v1/rols':
+
+  # --- ROLES ---
+  /api/v1/rols:
     $ref: './paths/Rol.yaml#/GetRoles'
   '/api/v1/rol/{id}':
     $ref: './paths/Rol.yaml#/GetRoleById'
   '/api/v1/rols/{id}':
     $ref: './paths/Rol.yaml#/PostRoleAssignment'
-  '/api/v1/rol':
+  /api/v1/rol:
     $ref: './paths/Rol.yaml#/PostRole'
-  '/api/v1/users':
+
+  # --- USERS ---
+  /api/v1/users:
     $ref: './paths/users.yaml#/GetUsers'
-  '/api/v1/user':
+  /api/v1/user:
     $ref: './paths/users.yaml#/PostUser'
   '/api/v1/user/{id}':
-    get:
-      $ref: './paths/users.yaml#/GetUserOne'
-    put:
-      $ref: './paths/users.yaml#/PutUser'
+    $ref: './paths/users.yaml#/UserItem'
   '/api/v1/user/image/{id}':
     $ref: './paths/users.yaml#/PostUserImage'
   '/api/v1/user/password/{id}':
     $ref: './paths/users.yaml#/PostResetPassword'
   '/api/v1/user/preferences/{id}':
     $ref: './paths/users.yaml#/PutUserPreferences'
+  '/api/v1/user/details/{id}':
+    $ref: './paths/users.yaml#/GetUserDetail'
+  '/api/v1/user/revoke/{id}':
+    $ref: './paths/users.yaml#/RevokeSession'
+  /api/v1/user/federate:
+    $ref: './paths/users.yaml#/GetFederateData'
+  /api/v1/user/download:
+    $ref: './paths/users.yaml#/DownloadImage'
 
 components:
   schemas:
@@ -79,10 +92,10 @@ components:
     OAuth2:
       type: oauth2
       flows:
-        clientCredentials:
-          tokenUrl: 'https://auth.example.com/oauth/token'
         authorizationCode:
-          authorizationUrl: 'https://auth.example.com/oauth/authorize'
-          tokenUrl: 'https://auth.example.com/oauth/token'
+          authorizationUrl: '/oauth/authorize'
+          tokenUrl: '/oauth/token'
         password:
-          tokenUrl: 'https://auth.example.com/oauth/token'
+          tokenUrl: '/oauth/token'
+        clientCredentials:
+          tokenUrl: '/oauth/token'

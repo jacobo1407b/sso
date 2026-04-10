@@ -17,13 +17,14 @@ class ClientService {
             }
         });
 
+
         const grants = cl?.SSO_AUTH_CLIENT_GRANTS_T.map((x) => {
             return {
                 created_date: x.created_date,
                 ...x.SSO_AUTH_GRANTS_T
             }
         });
-
+        const fechaCreacion = new Date(cl?.created_date ?? "").getTime();
         return {
             client_secret: cl?.client_secret,
             client_id: cl?.client_id,
@@ -36,7 +37,8 @@ class ClientService {
             client_icon_url: cl?.client_icon_url,
             created_by: cl?.created_by,
             last_update_date: cl?.last_update_date,
-            grants: grants
+            grants: grants,
+            created_date: fechaCreacion
         }
     }
 
@@ -173,7 +175,7 @@ class ClientService {
         const verify = await prisma.sSO_AUTH_CLIENTS_T.findUnique({
             where: { client_id: id }
         });
-        
+
         if (verify?.app_name === "SSO") throw new OAuthError(`No se puede eliminar esta aplicación`, {
             code: 409,
             name: 'DNT_DELET_SSO',
@@ -188,7 +190,7 @@ class ClientService {
         await prisma.sSO_AUTH_AUTHORIZATION_CODES_T.deleteMany({
             where: { client_id: id }
         })
-        const re = await prisma.sSO_AUTH_CLIENTS_T.delete({
+        await prisma.sSO_AUTH_CLIENTS_T.delete({
             where: { client_id: id }
         });
     }

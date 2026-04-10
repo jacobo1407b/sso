@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { roleService } from "@services/role.service";
+import { OAuthError } from "oauth2-server";
 
 
 export const getRolsController = async (req: Request, res: Response) => {
@@ -29,8 +30,17 @@ export const getRolsUniqID = async (req: Request, res: Response) => {
 }
 
 export const assigmentController = async (req: Request, res: Response) => {
-    const asigment: Array<any> = req.body.rols.filter((x: any) => x.type === "CREATE");
-    const revokUser: Array<any> = req.body.rols.filter((x: any) => x.type === "DELETE");
+    const roles = req.body.rols;
+
+    if (!Array.isArray(roles)) throw new OAuthError(`ROLES:MUST_BE_ARRAY`, {
+        code: 400,
+        name: 'ROLES:MUST_BE_ARRAY',
+        details: "SYS"
+    });
+
+
+    const asigment: Array<any> = roles.filter((x: any) => x.type === "CREATE");
+    const revokUser: Array<any> = roles.filter((x: any) => x.type === "DELETE");
 
     if (asigment.length !== 0) {
         await roleService.assigmentRol(req.params.id, asigment, req.user?.userId ?? "");
@@ -40,7 +50,7 @@ export const assigmentController = async (req: Request, res: Response) => {
         await roleService.revokeRoles(req.params.id, revokUser);
     }
 
-    res.status(200).json({
+    res.status(201).json({
         code: 201,
         statusCode: 201,
         data: null

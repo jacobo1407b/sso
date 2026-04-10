@@ -8,6 +8,7 @@ import * as userValid from '@validators/users.validator';
 const router = express.Router();
 
 router.use(authenticateRequest);
+
 router.delete("/user/sesion/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.revokeSesionController);
 router.post("/user", requierePermiso('USR_CREATE', 'CREATE'), userValid.validarUsuario, errorHandlerValidate, usr.createUserController);
 
@@ -24,6 +25,8 @@ router.put("/user/password/:id", requierePermiso('SYS_PREF_UPDATE', 'UPDATE'), u
 router.put("/user/preferences/:id", requierePermiso('SYS_PREF_UPDATE', 'UPDATE'), usr.setPreferenceController);
 
 router.get("/user/details/:id", requierePermiso('USR_VIEW_ONE', 'READ'), usr.getUserDetailController);
+
+router.post("/user/passwchange/logout", requierePermiso('SYS_PREF_UPDATE', 'UPDATE'), usr.ChagePasswordUserOneController);
 
 router.get("/sso/federated", requierePermiso('USR_VIEW_ONE', 'READ'), usr.getFederateDataController);
 

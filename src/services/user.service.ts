@@ -1,14 +1,58 @@
 import prisma from "@config/prisma";
 import { Prisma } from '@prisma/client';
 import { OAuthError } from "oauth2-server";
-import { hashPassword } from "@utils/bcrypt";
+import { hashPassword, comparePawd } from "@utils/bcrypt";
 
 
 
 
 class UserService {
     //todos
+    async changePassword(id: string, password: string, current_password: string, password_repit: string, session_id: string) {
+        if (password !== password_repit) throw new OAuthError("Las contraseñas no coinciden.", {
+            code: 400,
+            name: "PASSWORD_NOT_MATCH",
+            details: "USER"
+        });
 
+        const user = await prisma.sSO_AUTH_USERS_T.findUnique({
+            where: { user_id: id }
+        });
+        if (!user) throw new OAuthError("Usuario no encontrado.", {
+            code: 404,
+            name: "USER_NOT_FOUND",
+            details: "USER"
+        });
+
+        const isPasswordValid = await comparePawd(current_password, user.password);
+        if (!isPasswordValid) throw new OAuthError("Contraseña actual incorrecta.", {
+            code: 401,
+            name: "CURRENT_INVALID_PASSWORD",
+            details: "USER"
+        });
+
+        const isNotEqual = await comparePawd(password, user.password);
+        if (isNotEqual) throw new OAuthError("La contraseña no puede ser igual a la contraseña anterior.", {
+            code: 400,
+            name: "PASSWORD_EQUAL_LAST_PASSWORD",
+            details: "USER"
+        });
+
+
+        const hashedPassword = await hashPassword(password);
+        await prisma.sSO_AUTH_USERS_T.update({
+            where: { user_id: id },
+            data: {
+                password: hashedPassword,
+                last_password_change: user.password
+            }
+        });
+        await prisma.sSO_AUTH_TOKEN_T.delete({
+            where: {
+                token_id: session_id
+            }
+        })
+    }
     //administracion
     async getUsers(page = 1, pageSize = 20, name?: string) {
         const whereClause = name
@@ -115,7 +159,7 @@ class UserService {
             status: usr?.status,
             last_login: usr?.last_login,
             biografia: usr?.biografia,
-            last_update_avatar: usr?.last_update_avatar ? new Date(usr.last_update_avatar) : null,
+            last_update_avatar: usr?.last_update_avatar ? new Date(usr.last_update_avatar).getTime() : null,
             preferences: {
                 ...usr?.SSO_AUTH_USER_PREFERENCES_T
             },
@@ -224,7 +268,6 @@ class UserService {
                 }
             })
         }
-
 
         return {
             ...result,
@@ -389,7 +432,6 @@ class UserService {
                     log_in_status: null
                 }
             })
-
         }
 
         await prisma.sSO_AUTH_TOKEN_T.delete({
@@ -402,21 +444,26 @@ class UserService {
             select: {
                 profile_picture: true,
                 email: true,
-                name: true
+                name: true,
+                last_update_avatar: true
             }
         });
+
         const clientData = await prisma.sSO_AUTH_CLIENTS_T.findUnique({
             where: { client_id: clientId },
             select: {
                 app_name: true,
                 description: true,
                 client_icon_url: true,
-                redirect_callback: true
+                redirect_callback: true,
+                last_update_date: true
             }
         });
         return {
             ...userData,
-            ...clientData
+            last_update_avatar: userData?.last_update_avatar ? new Date(userData.last_update_avatar).getTime() : null,
+            ...clientData,
+            last_update_date: clientData?.last_update_date ? new Date(clientData.last_update_date).getTime() : null
         }
     }
 

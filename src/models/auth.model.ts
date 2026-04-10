@@ -50,7 +50,7 @@ const getClient = async (clientId: string, clientSecret: string) => {
 const saveToken = async (token: any, client: any, user: any) => {
     let refreshToken: string = '';
     let accessToken: string = '';
-    const expiresInOneMinute = Date.now() + 30 * 60 * 1000;
+    const expiresInOneMinute = /*Date.now() + 1 * 60 * 1000; */Date.now() + 30 * 60 * 1000;
     if (user.user_id) {
         if (user.totp && user.log_status === "WAIT") throw new OAuthError("MFA en proceso", {
             code: 403,
@@ -414,8 +414,14 @@ const verifyScope = (token: any, scope: any) => {
 /**************************************************************/
 
 const getUserFromClient = (client: any) => {
-    return {};
+    return {
+        clientId: client.clientId,
+        username: `service_account_${client.clientId}`,
+        name: `Service Account: ${client.app}`,
+        isServiceAccount: true
+    };
 }
+
 const saveAuthorizationCode = async (code: any, client: any, user: any) => {
     await prisma.sSO_AUTH_AUTHORIZATION_CODES_T.create({
         data: {

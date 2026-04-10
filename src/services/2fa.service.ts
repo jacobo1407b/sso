@@ -1,5 +1,4 @@
 import prisma from "@config/prisma";
-import { OAuthError } from "oauth2-server";
 import speakeasy from "speakeasy";
 
 class Security2FA {

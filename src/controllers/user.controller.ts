@@ -33,29 +33,27 @@ export const getUserController = async (req: Request, res: Response) => {
 export const createUserController = async (req: Request, res: Response) => {
     const { username, name, email, password } = req.body;
 
-    if (!username || !name || !email || !password) {
-        throw new OAuthError('Todos los campos son obligatorios.', {
-            code: 400,
-            name: "BAD_REQUEST_NULL_FIELDS",
-            details: "USER"
-        })
-    } else {
-        const hashedPassword = await hashPassword(password);
+    if (!username || !name || !email || !password) throw new OAuthError('Todos los campos son obligatorios.', {
+        code: 400,
+        name: "BAD_REQUEST_NULL_FIELDS",
+        details: "USER"
+    })
 
-        const bodyData = {
-            ...req.body,
-            password: hashedPassword
-        }
-        const unidad = req.query.unid ? String(req.query.unid) : null;
-        const branch = req.query.branch ? String(req.query.branch) : null;
+    const hashedPassword = await hashPassword(password);
 
-        const user = await usrService.createUser(bodyData, unidad, branch, req.user?.userId);
-        res.status(201).json({
-            code: 201,
-            statusCode: 201,
-            data: user
-        });
+    const bodyData = {
+        ...req.body,
+        password: hashedPassword
     }
+    const unidad = req.query.unid ? String(req.query.unid) : null;
+    const branch = req.query.branch ? String(req.query.branch) : null;
+
+    const user = await usrService.createUser(bodyData, unidad, branch, req.user?.userId);
+    res.status(201).json({
+        code: 201,
+        statusCode: 201,
+        data: user
+    });
 };
 
 export const updateImgController = async (req: Request, res: Response) => {
@@ -113,8 +111,9 @@ export const setPreferenceController = async (req: Request, res: Response) => {
 }
 
 export const getUserDetailController = async (req: Request, res: Response) => {
-    const session_id = String(req.query.session ?? "")
-    const details = await usrService.userdetails(req.params.id, session_id);
+    const user = req.user.userId
+    const session = req.query.session as string
+    const details = await usrService.userdetails(user, session);
     res.status(200).json({
         code: 200,
         statusCode: 200,
@@ -144,16 +143,34 @@ export const getFederateDataController = async (req: Request, res: Response) => 
 export const downloadStream = async (req: Request, res: Response) => {
     const url = getStorageProvider().getImageUrl(req.query.file as string);
     const response = await fetch(url);
-    if (!response.ok) throw new OAuthError(`Error al descargar: ${response.statusText}`,{
+    if (!response.ok) throw new OAuthError(`Error al descargar: ${response.statusText}`, {
         code: 400,
         name: "ERROR_FILE_DOWNLOAD",
         details: "USER"
     });
-
+    //console.log(await response.blob())
     res.writeHead(200, {
         'Content-Type': 'application/octet-stream', // Or the appropriate MIME type
         'Content-Disposition': `attachment; filename="${req.query.fileName || 'downloaded_file'}.png"`,
     })
     res.end(Buffer.from(await response.arrayBuffer()));
 
+}
+
+export const ChagePasswordUserOneController = async (req: Request, res: Response) => {
+
+    const { password, current_password, password_repit, session } = req.body;
+    if (!password || !current_password || !password_repit) throw new OAuthError("Todos los campos son obligatorios.", {
+        code: 400,
+        name: "PASSWORD_REQUIRED",
+        details: "USER"
+    });
+    const user_id = req.user?.userId ?? "";
+
+    await usrService.changePassword(user_id, password, current_password, password_repit, session);
+    res.status(201).json({
+        code: 201,
+        statusCode: 201,
+        data: true
+    })
 }

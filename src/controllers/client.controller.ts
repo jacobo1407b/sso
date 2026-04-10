@@ -34,7 +34,7 @@ export const putImageClient = async (req: Request, res: Response) => {
     res.status(201).json({
         code: 201,
         statusCode: 201,
-        data: null
+        data: publicId
     });
 }
 //POST Crear un app y sus grants
@@ -75,7 +75,7 @@ export const getClientsController = async (req: Request, res: Response) => {
 export const createGrantsController = async (req: Request, res: Response) => {
     const id = req.params.id;
     const { grantsType } = req.body;
-
+    console.log(req.body)
     const deletesArr: Array<any> = grantsType.filter((x: any) => x.type === "DELETE");
     const updtArr: Array<any> = grantsType.filter((x: any) => x.type === "UPDATE");
     if (deletesArr.length !== 0) {
@@ -112,6 +112,7 @@ export const deleteClientController = async (req: Request, res: Response) => {
 
 export const listGrantsController = async (req: Request, res: Response) => {
     const list = await clientService.getGrants();
+
     res.status(200).json({
         code: 200,
         statusCode: 200,

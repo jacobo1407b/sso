@@ -50,6 +50,7 @@ GetUsers:
                 totalCount:
                   type: integer
                   example: 124
+
 PostUser:
   post:
     summary: Crear un nuevo usuario y asignarlo a una unidad y sucursal
@@ -60,12 +61,12 @@ PostUser:
     parameters:
       - name: unid
         in: query
-        required: true
+        required: false
         schema:
           type: string
       - name: branch
         in: query
-        required: true
+        required: false
         schema:
           type: string
     requestBody:
@@ -80,10 +81,6 @@ PostUser:
               - last_name
               - email
               - password
-              - second_last_name
-              - hire_date
-              - job_title
-              - department
             properties:
               username:
                 type: string
@@ -105,16 +102,6 @@ PostUser:
                 type: string
                 format: password
                 example: "********"
-              hire_date:
-                type: string
-                format: date
-                example: "2023-05-01"
-              job_title:
-                type: string
-                example: "Arquitecto de soluciones"
-              department:
-                type: string
-                example: "Tecnología"
     responses:
       '201':
         description: Usuario creado exitosamente
@@ -140,43 +127,79 @@ PostUser:
                           $ref: '../schemas/user.yaml#/components/schemas/UserBusiness'
                         location:
                           $ref: '../schemas/user.yaml#/components/schemas/Location'
-GetUserOne:
-  summary: Obtener un usuario por su identificador
-  tags:
-    - Users
-  security:
-    - OAuth2: []
-  parameters:
-    - name: id
-      in: path
+
+UserItem:
+  get:
+    summary: Obtener un usuario por su identificador
+    tags:
+      - Users
+    security:
+      - OAuth2: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Usuario obtenido exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: integer
+                  example: 200
+                statusCode:
+                  type: integer
+                  example: 200
+                data:
+                  allOf:
+                    - $ref: '../schemas/user.yaml#/components/schemas/User'
+                    - type: object
+                      properties:
+                        preferences:
+                          $ref: '../schemas/user.yaml#/components/schemas/Preferences'
+                        userBusiness:
+                          $ref: '../schemas/user.yaml#/components/schemas/UserBusiness'
+                        location:
+                          $ref: '../schemas/user.yaml#/components/schemas/Location'
+  put:
+    summary: Actualizar información básica de un usuario
+    tags:
+      - Users
+    security:
+      - OAuth2: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
       required: true
-      schema:
-        type: string
-  responses:
-    '200':
-      description: Usuario obtenido exitosamente
       content:
         application/json:
           schema:
             type: object
             properties:
-              code:
-                type: integer
-                example: 200
-              statusCode:
-                type: integer
-                example: 200
-              data:
-                allOf:
-                  - $ref: '../schemas/user.yaml#/components/schemas/User'
-                  - type: object
-                    properties:
-                      preferences:
-                        $ref: '../schemas/user.yaml#/components/schemas/Preferences'
-                      userBusiness:
-                        $ref: '../schemas/user.yaml#/components/schemas/UserBusiness'
-                      location:
-                        $ref: '../schemas/user.yaml#/components/schemas/Location'
+              name:
+                type: string
+                example: "Jacobo"
+              last_name:
+                type: string
+                example: "Hernández"
+              second_last_name:
+                type: string
+                example: "Mendieta"
+              phone:
+                type: string
+                example: "+52 55 1234 5678"
+    responses:
+      '201':
+        description: Usuario actualizado exitosamente
 
 PostUserImage:
   put:
@@ -209,95 +232,7 @@ PostUserImage:
     responses:
       '201':
         description: Imagen de perfil actualizada exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  allOf:
-                    - $ref: '../schemas/user.yaml#/components/schemas/User'
-                    - type: object
-                      properties:
-                        preferences:
-                          $ref: '../schemas/user.yaml#/components/schemas/Preferences'
-                        userBusiness:
-                          $ref: '../schemas/user.yaml#/components/schemas/UserBusiness'
-                        location:
-                          $ref: '../schemas/user.yaml#/components/schemas/Location'
-PutUser:
-  summary: Actualizar información básica de un usuario
-  tags:
-    - Users
-  security:
-    - OAuth2: []
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          type: object
-          required:
-            - name
-            - last_name
-            - second_last_name
-            - phone
-            - job_title
-            - department
-            - biografia
-          properties:
-            name:
-              type: string
-              example: "Jacobo"
-            last_name:
-              type: string
-              example: "Hernández"
-            second_last_name:
-              type: string
-              example: "Mendieta"
-            phone:
-              type: string
-              example: "+52 55 1234 5678"
-            job_title:
-              type: string
-              example: "Arquitecto de soluciones"
-            department:
-              type: string
-              example: "Tecnología"
-            biografia:
-              type: string
-              example: "Explorador de la intersección entre arte, tecnología y narrativa existencial."
-  responses:
-    '201':
-      description: Usuario actualizado exitosamente
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                example: 201
-              statusCode:
-                type: integer
-                example: 201
-              data:
-                allOf:
-                  - $ref: '../schemas/user.yaml#/components/schemas/User'
-                  - type: object
-                    properties:
-                      preferences:
-                        $ref: '../schemas/user.yaml#/components/schemas/Preferences'
-                      userBusiness:
-                        $ref: '../schemas/user.yaml#/components/schemas/UserBusiness'
-                      location:
-                        $ref: '../schemas/user.yaml#/components/schemas/Location'
+
 PostResetPassword:
   put:
     summary: Restablecer la contraseña de un usuario
@@ -324,29 +259,13 @@ PostResetPassword:
               pass:
                 type: string
                 format: password
-                example: "nuevaContraseña123"
               last_pass:
                 type: string
                 format: password
-                example: "contraseñaAnterior456"
     responses:
       '201':
         description: Contraseña actualizada exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  type: string
-                  nullable: true
-                  example: null
+
 PutUserPreferences:
   put:
     summary: Actualizar preferencias de usuario
@@ -366,39 +285,82 @@ PutUserPreferences:
         application/json:
           schema:
             type: object
-            required:
-              - theme
-              - lang
-              - timezone
-              - notifications
             properties:
               theme:
                 type: string
-                example: "dark"
               lang:
                 type: string
-                example: "es"
-              timezone:
-                type: string
-                example: "America/Mexico_City"
-              notifications:
-                type: boolean
-                example: true
     responses:
       '201':
         description: Preferencias actualizadas exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  type: string
-                  nullable: true
-                  example: null
+
+GetUserDetail:
+  get:
+    summary: Obtener detalles extendidos de un usuario (incluyendo sesiones)
+    tags:
+      - Users
+    security:
+      - OAuth2: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Detalles obtenidos exitosamente
+
+RevokeSession:
+  delete:
+    summary: Revocar todas las sesiones de un usuario
+    tags:
+      - Users
+    security:
+      - OAuth2: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '201':
+        description: Sesiones revocadas exitosamente
+
+GetFederateData:
+  get:
+    summary: Obtener datos federados de un usuario
+    tags:
+      - Users
+    security:
+      - OAuth2: []
+    parameters:
+      - name: user
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: client
+        in: query
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Datos federados obtenidos exitosamente
+
+DownloadImage:
+  get:
+    summary: Descargar imagen de perfil
+    tags:
+      - Users
+    parameters:
+      - name: file
+        in: query
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Imagen descargada exitosamente

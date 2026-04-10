@@ -1,0 +1,66 @@
+Token:
+  post:
+    summary: Generar un token de acceso (OAuth2)
+    tags:
+      - OAuth
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            type: object
+            required:
+              - grant_type
+              - client_id
+              - client_secret
+            properties:
+              grant_type:
+                type: string
+                enum: [password, authorization_code, refresh_token]
+              client_id:
+                type: string
+              client_secret:
+                type: string
+              username:
+                type: string
+              password:
+                type: string
+                format: password
+    responses:
+      '200':
+        description: Token generado exitosamente
+
+Authorize:
+  get:
+    summary: Validar sesión activa y obtener datos del usuario
+    tags:
+      - OAuth
+    security:
+      - OAuth2: []
+    responses:
+      '200':
+        description: Usuario autenticado exitosamente
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/user.yaml#/components/schemas/User'
+  post:
+    summary: Iniciar flujo de código de autorización
+    tags:
+      - OAuth
+    security:
+      - OAuth2: []
+    responses:
+      '200':
+        description: Código de autorización generado exitosamente
+
+Revoke:
+  delete:
+    summary: Revocar un token de acceso (Cerrar sesión)
+    tags:
+      - OAuth
+    security:
+      - OAuth2: []
+    responses:
+      '201':
+        description: Token revocado exitosamente

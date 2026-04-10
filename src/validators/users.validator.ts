@@ -4,26 +4,38 @@ export const validarUsuario = checkSchema({
     username: {
         notEmpty: { errorMessage: 'USER:USERNAME_REQUIRED' },
         isString: true,
-        trim: true,
-        escape: true,
-        stripLow: true
+        trim: true
+    },
+    name: {
+        notEmpty: { errorMessage: 'USER:NAME_REQUIRED' },
+        isString: true,
+        trim: true
+    },
+    last_name: {
+        notEmpty: { errorMessage: 'USER:LAST_NAME_REQUIRED' },
+        isString: true,
+        trim: true
     },
     email: {
         isEmail: { errorMessage: 'USER:EMAIL_INVALID' },
         isString: true,
-        trim: true,
-        escape: true,
-        stripLow: true
+        trim: true
     },
     password: {
+        notEmpty: { errorMessage: 'USER:PASSWORD_REQUIRED' },
         isLength: {
             options: { min: 12 },
             errorMessage: 'USER:PASSWORD_SMAL'
         },
-        isString: true,
-        trim: true,
-        escape: true,
-        stripLow: true
+        custom: {
+            options: (value) => {
+                const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/;
+                if (!regex.test(value)) {
+                    throw new Error('USER:PASSWORD_WEAK');
+                }
+                return true;
+            }
+        }
     },
     hire_date: {
         isISO8601: { errorMessage: 'USER:DATE_INVALID' }

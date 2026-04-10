@@ -1,60 +1,44 @@
-GetCompany:
-  summary: Obtiene una empresa por ID
-  tags:
-    - Company
-  security:
-    - OAuth2: []
-  parameters:
-    - in: path
-      name: id
-      required: true
-      schema:
-        type: string
-      description: ID de la empresa a consultar
-  responses:
-    '200':
-      description: Empresa encontrada exitosamente
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                example: 200
-              statusCode:
-                type: integer
-                example: 200
-              data:
-                $ref: '../schemas/Unit.yaml'
-GeUnits:
+CompanyItem:
   get:
-    summary: Obtener todas la unidades con sucursales
+    summary: Obtiene una empresa por ID
     tags:
       - Company
     security:
       - OAuth2: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
     responses:
       '200':
-        description: Respuesta exitosa con la lista de rolos
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 200
-                statusCode:
-                  type: integer
-                  example: 200
-                data:
-                  type: array
-                  items:
-                    $ref: '../schemas/Unit.yaml'
+        description: Empresa encontrada
+  put:
+    summary: Actualizar una unidad de negocio
+    tags:
+      - Company
+    security:
+      - OAuth2: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/RequestBu.yaml#/BusinessUnitInput'
+    responses:
+      '201':
+        description: Empresa actualizada
+
 PostCompany:
   post:
-    summary: Crear una nueva unidad de negocio con sucursales
+    summary: Crear una nueva unidad de negocio
     tags:
       - Company
     security:
@@ -68,63 +52,24 @@ PostCompany:
             properties:
               bu:
                 $ref: '../schemas/RequestBu.yaml#/BusinessUnitInput'
-              branch:
-                type: array
-                items:
-                  $ref: '../schemas/RequestBu.yaml#/BranchInput'
     responses:
       '201':
-        description: Unidad de negocio creada exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  $ref: '../schemas/Unit.yaml'
-PutCompany:
-  summary: Actualizar una unidad de negocio existente
-  tags:
-    - Company
-  security:
-    - OAuth2: []
-  parameters:
-    - name: id
-      in: path
-      required: true
-      schema:
-        type: string
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: '../schemas/RequestBu.yaml#/BusinessUnitInput'
-  responses:
-    '201':
-      description: Unidad de negocio actualizada exitosamente
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                example: 201
-              statusCode:
-                type: integer
-                example: 201
-              data:
-                $ref: '../schemas/Unit.yaml'
+        description: Empresa creada
+
+GeUnits:
+  get:
+    summary: Obtener todas las unidades
+    tags:
+      - Company
+    security:
+      - OAuth2: []
+    responses:
+      '200':
+        description: Lista de unidades
+
 PutBranch:
   put:
-    summary: Actualizar la ubicación de una sucursal específica
+    summary: Actualizar sucursal
     tags:
       - Company
     security:
@@ -140,31 +85,13 @@ PutBranch:
         required: true
         schema:
           type: string
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/RequestBu.yaml#/BranchInput'
     responses:
       '201':
-        description: Sucursal actualizada exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  $ref: '../schemas/Branch.yaml'
+        description: Sucursal actualizada
+
 DeleteBranch:
   delete:
-    summary: Eliminar una sucursal específica y su ubicación
+    summary: Eliminar sucursal
     tags:
       - Company
     security:
@@ -177,25 +104,11 @@ DeleteBranch:
           type: string
     responses:
       '201':
-        description: Sucursal eliminada exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  type: string
-                  nullable: true
-                  example: null
+        description: Sucursal eliminada
+
 DeleteUnit:
   delete:
-    summary: Eliminar una unidad de negocio específica
+    summary: Eliminar unidad
     tags:
       - Company
     security:
@@ -208,25 +121,11 @@ DeleteUnit:
           type: string
     responses:
       '201':
-        description: Unidad de negocio eliminada exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  type: string
-                  nullable: true
-                  example: null
+        description: Unidad eliminada
+
 PostBranch:
   post:
-    summary: Crear una nueva sucursal para una unidad de negocio
+    summary: Crear sucursal
     tags:
       - Company
     security:
@@ -237,35 +136,15 @@ PostBranch:
         required: true
         schema:
           type: string
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/RequestBu.yaml#/BranchInput'
     responses:
       '201':
-        description: Sucursal creada exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  type: array
-                  items:
-                    $ref: '../schemas/Branch.yaml'
+        description: Sucursal creada
+
 PutImage:
   put:
-    summary: Cargar o actualizar icono de aplicacion
+    summary: Cargar imagen de empresa
     tags:
-      - Client
+      - Company
     security:
       - OAuth2: []
     parameters:
@@ -274,36 +153,6 @@ PutImage:
         required: true
         schema:
           type: string
-      - name: pub
-        in: query
-        required: false
-        schema:
-          type: string
-        description: id de archivo
-    requestBody:
-      content:
-        multipart/form-data:
-          schema:
-            type: object
-            properties:
-              file:
-                type: string
-                format: binary
-                description: Imagen de aplicacion
     responses:
       '200':
-        description: Cliente creado exitosamente
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: integer
-                  example: 201
-                statusCode:
-                  type: integer
-                  example: 201
-                data:
-                  type: object
-                  nullable: true
+        description: Imagen cargada

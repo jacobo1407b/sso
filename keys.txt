@@ -5,8 +5,8 @@
 🛡️ Rol SSO Administrator asignado a admin@admin.com
 🔑 Client credentials generadas:
    📱 APP: SSO
-   🆔 CLIENT: sso:1760923366412:web:0644ff2218ff1379e90c81
-   🔐 SECRET: f4f8fabde5c5cc8639eb75c93213ce27
+   🆔 CLIENT: sso:1773110697606:web:eb160c41469fcfd90511f7
+   🔐 SECRET: d6b404ebf90d89f40b5a22f00cc7aaec
 🔑 Grants asignados a SSO
 -------------------------------------------------PROD----------------------------------
 ✅ Usuario creado correctamente
@@ -18,3 +18,6 @@
    🆔 CLIENT: sso:1767829542729:web:885e5f18ee87cf54ae6825
    🔐 SECRET: d31cb72327088a171c622081cdf5bab2
 🔑 Grants asignados a SSO
+
+
+

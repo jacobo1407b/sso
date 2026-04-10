@@ -16,7 +16,7 @@ export const errorHandler = (err: any, req: Request, res: Response, _next: NextF
         code: "",
         details: "SYS"
     }
-
+    console.log(err)
 
     const currentCode = prismaCodes.find((x) => x.code === err?.code)
     if (err instanceof OAuthError) {

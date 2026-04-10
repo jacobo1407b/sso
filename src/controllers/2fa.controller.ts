@@ -5,12 +5,17 @@ import speakeasy from "speakeasy"
 
 
 export const generateSecretController = async (req: Request, res: Response) => {
-    const usr = await faService.getUserVerifi(req.user?.userId ?? "");
+    if (!req.user?.userId) throw new OAuthError(`User not authenticated`, {
+        code: 401,
+        name: 'TOKN_NOT_FOUND',
+        details: "SYS"
+    });
+    const usr = await faService.getUserVerifi(req.user.userId);
     if (usr?.id_user_2fa) {
-        await faService.delete2fa(usr.id_user_2fa, req.user?.userId ?? "");
+        await faService.delete2fa(usr.id_user_2fa, req.user.userId);
     }
-    const fa = await faService.generateSecret(req.user?.username);
-    await faService.setUser2fa(req.user?.userId ?? "", fa.id);
+    const fa = await faService.generateSecret(req.user.username);
+    await faService.setUser2fa(req.user.userId, fa.id);
 
     res.status(201).json({
         code: 201,
@@ -62,14 +67,21 @@ export const verifySecretController = async (req: Request, res: Response) => {
     await faService.setSuccess(req.body.id);
     res.status(200).json({
         code: 200,
-        statusCode: 200
+        statusCode: 200,
+        data: true
     });
 }
 
 export const cancelSecretController = async (req: Request, res: Response) => {
-    await faService.delete2fa(req.params.id, req.user?.userId ?? "");
+    if (!req.user?.userId) throw new OAuthError(`User not authenticated`, {
+        code: 401,
+        name: 'TOKN_NOT_FOUND',
+        details: "SYS"
+    });
+    await faService.delete2fa(req.params.id, req.user.userId);
     res.status(201).json({
         code: 201,
-        statusCode: 201
+        statusCode: 201,
+        data: true
     });
 }

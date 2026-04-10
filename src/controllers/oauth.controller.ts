@@ -15,20 +15,44 @@ export const authTokenController = async (req: Request, res: any) => {
     if (req.body.grant_type === 'password') {
         await oauthService.resetMfa(req.body.username);
     }
+
     const token = await getServer().token(requ, resp, { allowExtendedTokenAttributes: true });
+
     if (req.body.userAgent) {
         await oauthService.updateAgent(req.body.userAgent, req.body.ip, token.token_id)
     }
-    oauthService.updateUserLogin(token.user.user_id);
+
+    if (token.user && token.user.user_id) {
+        oauthService.updateUserLogin(token.user.user_id);
+    }
+
+    // --- MEJORAS DE SEGURIDAD (FEAT) ---
+    // 1. Generar ID Token (OIDC)
+    const idToken = jwt.sign({
+        sub: token.user.user_id,
+        email: token.user.email,
+        name: token.user.name,
+        preferred_username: token.user.username,
+        iat: Math.floor(Date.now() / 1000),
+    }, SECRET_KEY, { expiresIn: '1h' });
+
+    // 2. Configurar Cookie HttpOnly (Para mayor seguridad en el Front/Next.js)
+    // Solo se enviará si estamos en producción (Secure) o si el usuario lo solicita
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie('access_token', token.accessToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'lax',
+        maxAge: 3600000 // 1 hora en ms
+    });
+
     res.status(200).json({
         ...token,
         access_token: token.accessToken,
+        id_token: idToken, // Nuevo: Token de identidad
         token_type: 'Bearer',
-        expires_in: token.accessTokenExpiresAt
+        expires_in: 3600
     });
-
-    //res.status(err.code || 500).json(err);
-
 }
 export const autorizeCode = async (req: Request, res: any) => {
     const RequestO = OAuth2Server.Request;
@@ -56,5 +80,5 @@ export const revokTokenController = async (req: Request, res: any) => {
     const authHeader = req.headers['authorization'] ?? "";
     const token = authHeader.split(' ')[1];
     await oauthService.revokToken(req.user?.userId ?? "", token);
-    res.status(201);
+    res.status(201).json({ code: 201, statusCode: 201, message: "Token revocado exitosamente" });
 }
