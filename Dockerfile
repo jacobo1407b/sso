@@ -18,6 +18,7 @@ COPY . .
 # Ejecutar el build (esto genera la carpeta /dist o /build)
 RUN yarn build
 RUN mkdir -p dist/config && cp -r src/config/docs dist/config/
+RUN mkdir -p dist/public && cp -r src/public dist/public/
 
 
 # Etapa 2: Ejecución (Runner)
