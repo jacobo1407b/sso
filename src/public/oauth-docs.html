@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSO OAuth 2.0 — Documentación</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #1a1d26;
+    --border: #222530;
+    --accent: #4fffb0;
+    --accent2: #7b5ea7;
+    --text: #e2e8f4;
+    --muted: #6b7592;
+    --get: #38bdf8;
+    --post: #4fffb0;
+    --delete: #f87171;
+    --warn: #fbbf24;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── Sidebar ── */
+  nav {
+    width: 240px;
+    min-width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 2rem 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .nav-logo {
+    padding: 0 1.5rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+  }
+
+  .nav-logo .badge {
+    font-size: 10px;
+    background: var(--accent);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+
+  .nav-logo h1 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .nav-logo .base-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    word-break: break-all;
+  }
+
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1.5rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: color 0.15s, background 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  nav a:hover, nav a.active {
+    color: var(--accent);
+    background: rgba(79,255,176,0.04);
+    border-left-color: var(--accent);
+  }
+
+  nav a .method {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .m-get  { background: rgba(56,189,248,0.15); color: var(--get); }
+  .m-post { background: rgba(79,255,176,0.15); color: var(--post); }
+  .m-del  { background: rgba(248,113,113,0.15); color: var(--delete); }
+
+  /* ── Main ── */
+  main {
+    flex: 1;
+    padding: 3rem 4rem;
+    max-width: 900px;
+  }
+
+  .page-header {
+    margin-bottom: 4rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header h2 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent) 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+  }
+
+  .page-header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: 560px;
+  }
+
+  /* ── Endpoint ── */
+  .endpoint {
+    margin-bottom: 4rem;
+    scroll-margin-top: 2rem;
+  }
+
+  .endpoint-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .method-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 5px;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  .method-badge.GET    { background: rgba(56,189,248,0.15); color: var(--get); border: 1px solid rgba(56,189,248,0.3); }
+  .method-badge.POST   { background: rgba(79,255,176,0.15); color: var(--post); border: 1px solid rgba(79,255,176,0.3); }
+  .method-badge.DELETE { background: rgba(248,113,113,0.15); color: var(--delete); border: 1px solid rgba(248,113,113,0.3); }
+
+  .endpoint-header h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--text);
+    font-weight: 400;
+  }
+
+  .endpoint-header h3 span { color: var(--muted); }
+
+  .endpoint-desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--border);
+  }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(--border); }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── Tables ── */
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+  }
+
+  .param-table th {
+    text-align: left;
+    padding: 0.6rem 1rem;
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .param-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .param-table tr:last-child td { border-bottom: none; }
+
+  .param-name {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    font-size: 0.82rem;
+  }
+
+  .param-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #a78bfa;
+  }
+
+  .required {
+    font-size: 0.65rem;
+    background: rgba(251,191,36,0.15);
+    color: var(--warn);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+
+  .optional {
+    font-size: 0.65rem;
+    background: rgba(107,117,146,0.15);
+    color: var(--muted);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+
+  /* ── Code blocks ── */
+  .code-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1rem 0;
+    position: relative;
+  }
+
+  .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  pre {
+    padding: 1.2rem 1.4rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .k  { color: #f472b6; }   /* keyword */
+  .s  { color: #4fffb0; }   /* string */
+  .n  { color: #38bdf8; }   /* name/key */
+  .v  { color: #a78bfa; }   /* value */
+  .c  { color: #6b7592; }   /* comment */
+  .url { color: #fb923c; }  /* url */
+
+  /* ── Divider ── */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3rem 0;
+  }
+
+  /* ── Info box ── */
+  .info-box {
+    background: rgba(56,189,248,0.06);
+    border: 1px solid rgba(56,189,248,0.2);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 1rem 0;
+  }
+
+  .info-box strong { color: var(--get); }
+
+  .warn-box {
+    background: rgba(251,191,36,0.06);
+    border: 1px solid rgba(251,191,36,0.2);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 1rem 0;
+  }
+
+  .warn-box strong { color: var(--warn); }
+
+  /* ── Flow diagram ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .flow-step {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .flow-arrow {
+    color: var(--muted);
+    padding: 0 0.4rem;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    nav { display: none; }
+    main { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<nav>
+  <div class="nav-logo">
+    <div class="badge">OAuth 2.0</div>
+    <h1>SSO API Docs</h1>
+    <div class="base-url">sso-itg.fly.dev/oauth</div>
+  </div>
+  <a href="#authorize-ui"><span class="method m-get">GET</span> Autorizar</a>
+  <a href="#authorize-get"><span class="method m-get">GET</span> isAuthenticate</a>
+  <a href="#token-code"><span class="method m-post">POST</span> Code</a>
+  <a href="#token-refresh"><span class="method m-post">POST</span> Refresh</a>
+  <a href="#revoke"><span class="method m-del">DEL</span> Revok</a>
+</nav>
+
+<!-- ── Main ── -->
+<main>
+  <div class="page-header">
+    <h2>SSO OAuth 2.0</h2>
+    <p>Documentación de los endpoints de autenticación y autorización. Base URL: <code style="font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:0.85rem">https://sso-itg.fly.dev/oauth</code></p>
+  </div>
+
+  <!-- ── Flujo general ── -->
+  <div style="margin-bottom:3rem">
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:700;margin-bottom:0.75rem">Flujo Authorization Code + PKCE</div>
+    <div class="flow">
+      <div class="flow-step">Cliente genera<br><code style="font-weight:400;font-family:'JetBrains Mono',monospace;font-size:0.75rem">code_verifier</code></div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-step">GET /authorize<br><span style="font-weight:400;font-size:0.72rem;color:var(--muted)">redirige a UI</span></div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-step">Usuario login<br><span style="font-weight:400;font-size:0.72rem;color:var(--muted)">en sso-ui</span></div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-step" style="color:var(--accent)">auth_code<br><span style="font-weight:400;font-size:0.72rem">callback</span></div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-step">POST /token<br><span style="font-weight:400;font-size:0.72rem;color:var(--muted)">+ code_verifier</span></div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-step" style="color:var(--accent)">access_token</div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════
+       GET sso-ui — Página de login
+  ══════════════════════════════════════════ -->
+  <section class="endpoint" id="authorize-ui">
+    <div class="endpoint-header">
+      <span class="method-badge GET">GET</span>
+      <h3><span>https://sso-ui-delta.vercel.app</span>/authorize</h3>
+    </div>
+    <div style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:0.5rem">Autorizar</div>
+    <p class="endpoint-desc">
+      Página de login del SSO. El cliente redirige al navegador del usuario a esta URL con los parámetros como query string. El usuario ingresa sus credenciales y, tras autenticarse, la UI hace callback al <code style="font-family:'JetBrains Mono',monospace;color:var(--get)">redirect_uri</code> registrado con el <code style="font-family:'JetBrains Mono',monospace;color:var(--get)">code</code>.
+    </p>
+
+    <div class="info-box" style="margin-bottom:1.5rem">
+      <strong>&#128274; PKCE — Cómo generar el code_challenge</strong><br><br>
+      Antes de redirigir, genera un <code style="font-family:'JetBrains Mono',monospace">code_verifier</code> aleatorio y deriva el <code style="font-family:'JetBrains Mono',monospace">code_challenge</code> con SHA-256 + Base64url:
+      <div class="code-wrap" style="margin-top:0.75rem">
+        <div class="code-header"><span>JavaScript — Generar PKCE</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre><span class="c">// 1. Generar code_verifier aleatorio</span>
+<span class="k">const</span> array = <span class="n">crypto</span>.getRandomValues(<span class="k">new</span> Uint8Array(<span class="v">32</span>));
+<span class="k">const</span> codeVerifier = btoa(String.fromCharCode(...array))
+  .replace(/\+/g, <span class="s">'-'</span>).replace(/\//g, <span class="s">'_'</span>).replace(/=/g, <span class="s">''</span>);
+
+<span class="c">// 2. Derivar code_challenge = BASE64URL(SHA256(code_verifier))</span>
+<span class="k">const</span> encoded = <span class="k">new</span> TextEncoder().encode(codeVerifier);
+<span class="k">const</span> digest  = <span class="k">await</span> <span class="n">crypto</span>.subtle.digest(<span class="s">'SHA-256'</span>, encoded);
+<span class="k">const</span> codeChallenge = btoa(String.fromCharCode(...<span class="k">new</span> Uint8Array(digest)))
+  .replace(/\+/g, <span class="s">'-'</span>).replace(/\//g, <span class="s">'_'</span>).replace(/=/g, <span class="s">''</span>);
+
+<span class="c">// Guarda codeVerifier — lo necesitas después en POST /token</span>
+sessionStorage.setItem(<span class="s">'pkce_verifier'</span>, codeVerifier);</pre>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'ui-params')">Parámetros</button>
+      <button class="tab-btn" onclick="switchTab(this,'ui-req')">Request</button>
+      <button class="tab-btn" onclick="switchTab(this,'ui-res')">Callback</button>
+    </div>
+
+    <div class="tab-content active" id="ui-params">
+      <table class="param-table">
+        <thead><tr><th>Query Param</th><th>Tipo</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">client_id</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Identificador del cliente OAuth registrado en el servidor.</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">state</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Valor aleatorio opaco para prevenir CSRF. Se devuelve intacto en el callback. Generar con <code style="font-family:'JetBrains Mono',monospace;color:var(--muted)">crypto.randomUUID()</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">code_challenge</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Hash <code style="font-family:'JetBrains Mono',monospace;color:var(--muted)">BASE64URL(SHA-256(code_verifier))</code>. Ver snippet de generación arriba.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-content" id="ui-req">
+      <div class="code-wrap">
+        <div class="code-header"><span>URL completa</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre><span class="k">GET</span> <span class="url">https://sso-ui-delta.vercel.app/authorize</span>?<span class="n">client_id</span>=<span class="s">mi-app-client-id</span>&amp;<span class="n">state</span>=<span class="s">abc123xyz</span>&amp;<span class="n">code_challenge</span>=<span class="s">E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM</span></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span>JavaScript — Redirigir al navegador</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre><span class="k">const</span> params = <span class="k">new</span> URLSearchParams({
+  client_id:      <span class="s">'mi-app-client-id'</span>,
+  state:          state,           <span class="c">// guárdalo para validar en el callback</span>
+  code_challenge: codeChallenge,
+});
+
+window.location.href =
+  <span class="s">`https://sso-ui-delta.vercel.app/authorize?${params}`</span>;</pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="ui-res">
+      <p style="font-size:0.85rem;color:var(--muted);margin:1rem 0 0.5rem">Tras el login exitoso, la UI redirige al <code style="font-family:'JetBrains Mono',monospace">redirect_uri</code> registrado del cliente:</p>
+      <div class="code-wrap">
+        <div class="code-header"><span>Callback recibido en redirect_uri</span></div>
+        <pre><span class="url">https://mi-app.com/callback</span>?<span class="n">code</span>=<span class="s">SplxlOBeZQQYbYS6WxSbIA</span>&amp;<span class="n">state</span>=<span class="s">abc123xyz</span></pre>
+      </div>
+      <div class="warn-box">
+        <strong>⚠ Valida el state</strong> — Verifica que el <code style="font-family:'JetBrains Mono',monospace">state</code> del callback coincide con el que guardaste antes de redirigir. Si no coincide, descarta la respuesta (posible ataque CSRF).
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════
+       GET /authorize — Validar token
+  ══════════════════════════════════════════ -->
+  <section class="endpoint" id="authorize-get">
+    <div class="endpoint-header">
+      <span class="method-badge GET">GET</span>
+      <h3><span>https://sso-itg.fly.dev/oauth</span>/authorize</h3>
+    </div>
+    <div style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:0.5rem">isAuthenticate</div>
+    <p class="endpoint-desc">
+      Valida un <strong>access token</strong> activo. Requiere autenticación (<code style="font-family:'JetBrains Mono',monospace;color:var(--get)">authenticateRequest</code>). Solo se envía el token en el header <code style="font-family:'JetBrains Mono',monospace;color:var(--get)">Authorization</code>, sin body ni query params.
+    </p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'ag-params')">Parámetros</button>
+      <button class="tab-btn" onclick="switchTab(this,'ag-req')">Request</button>
+      <button class="tab-btn" onclick="switchTab(this,'ag-res')">Response</button>
+    </div>
+
+    <div class="tab-content active" id="ag-params">
+      <table class="param-table">
+        <thead><tr><th>Header</th><th>Tipo</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">Authorization</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>El access token con esquema Bearer. Formato: <code style="font-family:'JetBrains Mono',monospace;color:var(--muted)">Bearer eyJhbG...</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-content" id="ag-req">
+      <div class="code-wrap">
+        <div class="code-header"><span>HTTP</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre><span class="k">GET</span> <span class="url">https://sso-itg.fly.dev/oauth/authorize</span>
+<span class="n">Authorization</span><span class="c">:</span> <span class="s">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</span></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span>cURL</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre>curl -X GET <span class="url">https://sso-itg.fly.dev/oauth/authorize</span> \
+  -H <span class="s">"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span></pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="ag-res">
+      <div class="code-wrap">
+        <div class="code-header"><span>200 OK</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre>{
+  <span class="n">"userId"</span>:    <span class="s">"f76b3bb1-b8ec-48e2-b2cb-897e1b1c00e4"</span>,
+  <span class="n">"exp"</span>:       <span class="v">1778664583063</span>,
+  <span class="n">"iat"</span>:       <span class="v">1776885897</span>,
+  <span class="n">"username"</span>:  <span class="s">"admin@admin.com"</span>,
+  <span class="n">"client_id"</span>: <span class="s">"sso:1775863804563:web:cb7cb288c2487baecf51f1"</span>,
+  <span class="n">"rols"</span>: [
+    {
+      <span class="n">"role_code"</span>: <span class="s">"ADMIN_SSO"</span>,
+      <span class="n">"module"</span>:    <span class="s">"*"</span>,
+      <span class="n">"policy_permission"</span>: [
+        <span class="s">"SEC_2FA_ENABLE_SELF:UPDATE"</span>,
+        <span class="s">"SEC_2FA_DISABLE_SELF:DELETE"</span>,
+        <span class="s">"APP_CREATE:CREATE"</span>,
+        <span class="s">"USR_VIEW_ALL:READ"</span>,
+        <span class="s">"USR_VIEW_ONE:READ"</span>,
+        <span class="s">"USR_RESET_EXEC:UPDATE"</span>,
+        <span class="s">"USR_EDIT_PROF:UPDATE"</span>,
+        <span class="s">"USR_EDIT_SELF:UPDATE"</span>,
+        <span class="s">"USR_CREATE:CREATE"</span>,
+        <span class="s">"USR_BUSINESS_UPDATE:UPDATE"</span>,
+        <span class="s">"SYS_PREF_UPDATE:UPDATE"</span>,
+        <span class="s">"BUS_UNIT_VIEW:READ"</span>,
+        <span class="s">"BUS_UNIT_CREATE:CREATE"</span>,
+        <span class="s">"BUS_UNIT_UPDATE:UPDATE"</span>,
+        <span class="s">"BUS_UNIT_DELETE:DELETE"</span>,
+        <span class="s">"BRANCH_CREATE:CREATE"</span>,
+        <span class="s">"APP_VIEW:READ"</span>,
+        <span class="s">"APP_DELETE:DELETE"</span>,
+        <span class="s">"APP_GRANTS_MANAGE:UPDATE"</span>,
+        <span class="s">"APP_UPDATE:UPDATE"</span>,
+        <span class="s">"PERM_VIEW:READ"</span>,
+        <span class="s">"ROLE_VIEW:READ"</span>,
+        <span class="s">"USR_ROLE_ASSIGN:UPDATE"</span>
+      ]
+    }
+  ]
+}</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span>404 — Token no válido</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre>{
+  <span class="n">"statusCode"</span>: <span class="v">404</span>,
+  <span class="n">"status"</span>:     <span class="v">404</span>,
+  <span class="n">"code"</span>:       <span class="v">404</span>,
+  <span class="n">"message"</span>:    <span class="s">"Token no valido"</span>,
+  <span class="n">"name"</span>:       <span class="s">"TOKEN_NOT_FOUND"</span>,
+  <span class="n">"details"</span>:    <span class="s">"SYS"</span>
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════
+       POST /token — Authorization Code
+  ══════════════════════════════════════════ -->
+  <section class="endpoint" id="token-code">
+    <div class="endpoint-header">
+      <span class="method-badge POST">POST</span>
+      <h3><span>https://sso-itg.fly.dev/oauth</span>/token <span style="color:var(--muted);font-size:0.85rem">— Authorization Code</span></h3>
+    </div>
+    <div style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:0.5rem">Code</div>
+    <p class="endpoint-desc">
+      Intercambia un <strong>authorization code</strong> (obtenido del callback de <code style="font-family:'JetBrains Mono',monospace;color:var(--post)">GET /authorize</code>) por un <code style="font-family:'JetBrains Mono',monospace;color:var(--post)">access_token</code> y <code style="font-family:'JetBrains Mono',monospace;color:var(--post)">refresh_token</code>. Se debe enviar el <code style="font-family:'JetBrains Mono',monospace;color:var(--post)">code_verifier</code> original para que el servidor verifique el PKCE.
+    </p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tc-params')">Parámetros</button>
+      <button class="tab-btn" onclick="switchTab(this,'tc-req')">Request</button>
+      <button class="tab-btn" onclick="switchTab(this,'tc-res')">Response</button>
+    </div>
+
+    <div class="tab-content active" id="tc-params">
+      <div class="info-box" style="margin-bottom:1rem">
+        <strong>📋 Content-Type:</strong> Los parámetros se envían como <code style="font-family:'JetBrains Mono',monospace">application/x-www-form-urlencoded</code>, no como JSON.
+      </div>
+      <table class="param-table">
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">grant_type</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Debe ser <code style="font-family:'JetBrains Mono',monospace;color:var(--accent)">authorization_code</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">code</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>El authorization code recibido en el callback de la UI.</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">code_verifier</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>El <code style="font-family:'JetBrains Mono',monospace;color:var(--muted)">code_verifier</code> original generado antes de iniciar el flujo PKCE.</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">redirect_uri</span><span class="required">required</span></td>
+            <td><span class="param-type">string (URL)</span></td>
+            <td>Debe ser idéntica al <code style="font-family:'JetBrains Mono',monospace;color:var(--muted)">redirect_uri</code> registrado del cliente.</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">client_id</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Identificador del cliente OAuth.</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">client_secret</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Secreto del cliente.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-content" id="tc-req">
+      <div class="code-wrap">
+        <div class="code-header"><span>HTTP · application/x-www-form-urlencoded</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre><span class="k">POST</span> <span class="url">https://sso-itg.fly.dev/oauth/token</span>
+<span class="n">Content-Type</span><span class="c">:</span> <span class="s">application/x-www-form-urlencoded</span>
+
+<span class="n">grant_type</span>=<span class="s">authorization_code</span>&amp;<span class="n">code</span>=<span class="s">SplxlOBeZQQ...</span>&amp;<span class="n">code_verifier</span>=<span class="s">dBjftJeZ4CVP...</span>&amp;<span class="n">redirect_uri</span>=<span class="s">https%3A%2F%2Fmi-app.com%2Fcallback</span>&amp;<span class="n">client_id</span>=<span class="s">sso:xxx:web:xxx</span>&amp;<span class="n">client_secret</span>=<span class="s">73c31507...</span></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span>cURL</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre>curl -X POST <span class="url">https://sso-itg.fly.dev/oauth/token</span> \
+  --data-urlencode <span class="s">"grant_type=authorization_code"</span> \
+  --data-urlencode <span class="s">"code=SplxlOBeZQQ..."</span> \
+  --data-urlencode <span class="s">"code_verifier=dBjftJeZ4CVP..."</span> \
+  --data-urlencode <span class="s">"redirect_uri=https://mi-app.com/callback"</span> \
+  --data-urlencode <span class="s">"client_id=sso:xxx:web:xxx"</span> \
+  --data-urlencode <span class="s">"client_secret=73c31507ab2ac7f385270c82c6909fdf"</span></pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tc-res">
+      <div class="code-wrap">
+        <div class="code-header"><span>200 OK</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre>{
+  <span class="n">"accessToken"</span>:           <span class="s">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="n">"accessTokenExpiresAt"</span>:  <span class="s">"2026-04-22T20:17:41.409Z"</span>,
+  <span class="n">"refreshToken"</span>:          <span class="s">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="n">"refreshTokenExpiresAt"</span>: <span class="s">"2026-05-06T19:47:41.408Z"</span>,
+  <span class="n">"client"</span>: {
+    <span class="n">"clientId"</span>:    <span class="s">"sso:1776795753742:web:2f12314a11a8c3615e72ac"</span>,
+    <span class="n">"app"</span>:         <span class="s">"SAC"</span>,
+    <span class="n">"clientSecret"</span>:<span class="s">"73c31507ab2ac7f385270c82c6909fdf"</span>,
+    <span class="n">"app_icon"</span>:    <span class="s">"app/l4gihzmebvotn46xn9hg"</span>,
+    <span class="n">"app_type"</span>:    <span class="s">"web"</span>,
+    <span class="n">"redirectUris"</span>: [<span class="s">"http://sac.it-globalsolutions.com.mx/callback"</span>],
+    <span class="n">"grants"</span>:      [<span class="s">"authorization_code"</span>, <span class="s">"refresh_token"</span>]
+  },
+  <span class="n">"user"</span>: {
+    <span class="n">"user_id"</span>:        <span class="s">"f76b3bb1-b8ec-48e2-b2cb-897e1b1c00e4"</span>,
+    <span class="n">"username"</span>:       <span class="s">"ADMIN"</span>,
+    <span class="n">"name"</span>:           <span class="s">"ADMIN"</span>,
+    <span class="n">"last_name"</span>:      <span class="s">"ADMIN"</span>,
+    <span class="n">"email"</span>:          <span class="s">"admin@admin.com"</span>,
+    <span class="n">"phone"</span>:          <span class="s">"2412089096"</span>,
+    <span class="n">"profile_picture"</span>:<span class="s">"users/z2lt6vicfa4dl4xstr8v"</span>,
+    <span class="n">"status"</span>:         <span class="v">null</span>,
+    <span class="n">"last_login"</span>:     <span class="s">"2026-04-22T19:24:57.463Z"</span>,
+    <span class="n">"biografia"</span>:      <span class="s">"SSO Administrador"</span>,
+    <span class="n">"preferences"</span>: {
+      <span class="n">"theme"</span>:         <span class="s">"light"</span>,
+      <span class="n">"notifications"</span>: <span class="v">true</span>,
+      <span class="n">"timezone"</span>:      <span class="v">null</span>,
+      <span class="n">"lang"</span>:          <span class="s">"en"</span>
+    },
+    <span class="n">"userBusiness"</span>: <span class="v">null</span>,
+    <span class="n">"roles"</span>: [{
+      <span class="n">"role_code"</span>: <span class="s">"ADMIN_SSO"</span>,
+      <span class="n">"module"</span>:    <span class="s">"*"</span>,
+      <span class="n">"policy_permission"</span>: [<span class="s">"SEC_2FA_ENABLE_SELF:UPDATE"</span>, <span class="s">"APP_CREATE:CREATE"</span>, <span class="c">/* ... */</span>]
+    }]
+  },
+  <span class="n">"token_id"</span>:    <span class="s">"3380ed61-95a2-4ce4-8cac-ac97169eabb8"</span>,
+  <span class="n">"access_token"</span>:<span class="s">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="n">"id_token"</span>:    <span class="s">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="n">"token_type"</span>:  <span class="s">"Bearer"</span>,
+  <span class="n">"expires_in"</span>:  <span class="v">3600</span>
+}</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span>404 — Code no encontrado</span></div>
+        <pre>{
+  <span class="n">"status"</span>:  <span class="v">404</span>,
+  <span class="n">"message"</span>: <span class="s">"No se encontro un code"</span>,
+  <span class="n">"code"</span>:    <span class="s">"CODE_NOT_FOUND"</span>,
+  <span class="n">"details"</span>: <span class="s">"USER"</span>
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════
+       POST /token — Refresh
+  ══════════════════════════════════════════ -->
+  <section class="endpoint" id="token-refresh">
+    <div class="endpoint-header">
+      <span class="method-badge POST">POST</span>
+      <h3><span>https://sso-itg.fly.dev/oauth</span>/token <span style="color:var(--muted);font-size:0.85rem">— Refresh Token</span></h3>
+    </div>
+    <div style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:0.5rem">Refresh</div>
+    <p class="endpoint-desc">
+      Renueva el <code style="font-family:'JetBrains Mono',monospace;color:var(--post)">access_token</code> usando un <code style="font-family:'JetBrains Mono',monospace;color:var(--post)">refresh_token</code> válido, sin necesidad de autenticar al usuario nuevamente.
+    </p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tr-params')">Parámetros</button>
+      <button class="tab-btn" onclick="switchTab(this,'tr-req')">Request</button>
+      <button class="tab-btn" onclick="switchTab(this,'tr-res')">Response</button>
+    </div>
+
+    <div class="tab-content active" id="tr-params">
+      <div class="info-box" style="margin-bottom:1rem">
+        <strong>📋 Content-Type:</strong> Los parámetros se envían como <code style="font-family:'JetBrains Mono',monospace">application/x-www-form-urlencoded</code>, no como JSON.
+      </div>
+      <table class="param-table">
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">grant_type</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Debe ser <code style="font-family:'JetBrains Mono',monospace;color:var(--accent)">refresh_token</code>.</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">refresh_token</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>El refresh token obtenido previamente en el intercambio de authorization code.</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">client_id</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Identificador del cliente OAuth.</td>
+          </tr>
+          <tr>
+            <td><span class="param-name">client_secret</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Secreto del cliente.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-content" id="tr-req">
+      <div class="code-wrap">
+        <div class="code-header"><span>HTTP · application/x-www-form-urlencoded</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre><span class="k">POST</span> <span class="url">https://sso-itg.fly.dev/oauth/token</span>
+<span class="n">Content-Type</span><span class="c">:</span> <span class="s">application/x-www-form-urlencoded</span>
+
+<span class="n">grant_type</span>=<span class="s">refresh_token</span>&amp;<span class="n">refresh_token</span>=<span class="s">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</span>&amp;<span class="n">client_id</span>=<span class="s">sso:xxx:web:xxx</span>&amp;<span class="n">client_secret</span>=<span class="s">73c31507...</span></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span>cURL</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre>curl -X POST <span class="url">https://sso-itg.fly.dev/oauth/token</span> \
+  --data-urlencode <span class="s">"grant_type=refresh_token"</span> \
+  --data-urlencode <span class="s">"refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span> \
+  --data-urlencode <span class="s">"client_id=sso:xxx:web:xxx"</span> \
+  --data-urlencode <span class="s">"client_secret=73c31507ab2ac7f385270c82c6909fdf"</span></pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tr-res">
+      <div class="code-wrap">
+        <div class="code-header"><span>200 OK</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre>{
+  <span class="n">"accessToken"</span>:           <span class="s">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="n">"accessTokenExpiresAt"</span>:  <span class="s">"2026-04-22T20:22:07.156Z"</span>,
+  <span class="n">"refreshToken"</span>:          <span class="s">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="n">"refreshTokenExpiresAt"</span>: <span class="s">"2026-05-06T19:52:07.156Z"</span>,
+  <span class="n">"client"</span>: {
+    <span class="n">"clientId"</span>:    <span class="s">"sso:1776795753742:web:2f12314a11a8c3615e72ac"</span>,
+    <span class="n">"app"</span>:         <span class="s">"SAC"</span>,
+    <span class="n">"clientSecret"</span>:<span class="s">"73c31507ab2ac7f385270c82c6909fdf"</span>,
+    <span class="n">"app_type"</span>:    <span class="s">"web"</span>,
+    <span class="n">"redirectUris"</span>: [<span class="s">"http://sac.it-globalsolutions.com.mx/callback"</span>],
+    <span class="n">"grants"</span>:      [<span class="s">"authorization_code"</span>, <span class="s">"refresh_token"</span>]
+  },
+  <span class="n">"user"</span>: {
+    <span class="n">"user_id"</span>:         <span class="s">"f76b3bb1-b8ec-48e2-b2cb-897e1b1c00e4"</span>,
+    <span class="n">"username"</span>:        <span class="s">"ADMIN"</span>,
+    <span class="n">"email"</span>:           <span class="s">"admin@admin.com"</span>,
+    <span class="n">"last_login"</span>:      <span class="s">"2026-04-22T19:47:41.556Z"</span>,
+    <span class="n">"last_update_avatar"</span>:<span class="s">"2026-04-21T18:47:14.440Z"</span>,
+    <span class="n">"SSO_AUTH_USER_2FA"</span>: {
+      <span class="n">"id"</span>:           <span class="s">"c3e2c32f-d5df-4a38-84f6-7e2b5891b023"</span>,
+      <span class="n">"log_in_status"</span>:<span class="s">"SUCCESS"</span>
+    },
+    <span class="n">"preferences"</span>: {
+      <span class="n">"theme"</span>:         <span class="s">"light"</span>,
+      <span class="n">"notifications"</span>: <span class="v">true</span>,
+      <span class="n">"lang"</span>:          <span class="s">"en"</span>
+    },
+    <span class="n">"roles"</span>: [{
+      <span class="n">"role_code"</span>: <span class="s">"ADMIN_SSO"</span>,
+      <span class="n">"module"</span>:    <span class="s">"*"</span>,
+      <span class="n">"policy_permission"</span>: [<span class="s">"SEC_2FA_ENABLE_SELF:UPDATE"</span>, <span class="s">"APP_CREATE:CREATE"</span>, <span class="c">/* ... */</span>]
+    }],
+    <span class="n">"totp"</span>:       <span class="v">true</span>,
+    <span class="n">"log_status"</span>: <span class="s">"SUCCESS"</span>,
+    <span class="n">"totp_id"</span>:    <span class="s">"c3e2c32f-d5df-4a38-84f6-7e2b5891b023"</span>
+  },
+  <span class="n">"token_id"</span>:    <span class="s">"0bec5019-26ae-4e1e-bb7b-7b9478ef0d74"</span>,
+  <span class="n">"access_token"</span>:<span class="s">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="n">"id_token"</span>:    <span class="s">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+  <span class="n">"token_type"</span>:  <span class="s">"Bearer"</span>,
+  <span class="n">"expires_in"</span>:  <span class="v">3600</span>
+}</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span>404 — Refresh token no encontrado</span></div>
+        <pre>{
+  <span class="n">"status"</span>:  <span class="v">404</span>,
+  <span class="n">"message"</span>: <span class="s">"No se encontro un refresh token"</span>,
+  <span class="n">"code"</span>:    <span class="s">"CODE_NOT_FOUND"</span>,
+  <span class="n">"details"</span>: <span class="s">"USER"</span>
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════
+       DELETE /revok
+  ══════════════════════════════════════════ -->
+  <section class="endpoint" id="revoke">
+    <div class="endpoint-header">
+      <span class="method-badge DELETE">DELETE</span>
+      <h3><span>https://sso-itg.fly.dev/oauth</span>/revok</h3>
+    </div>
+    <div style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:0.5rem">Revok</div>
+    <p class="endpoint-desc">
+      Revoca el token activo. Requiere autenticación (<code style="font-family:'JetBrains Mono',monospace;color:var(--delete)">authenticateRequest</code>). Solo se envía el token en el header <code style="font-family:'JetBrains Mono',monospace;color:var(--delete)">Authorization</code>, sin body.
+    </p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'rv-params')">Parámetros</button>
+      <button class="tab-btn" onclick="switchTab(this,'rv-req')">Request</button>
+      <button class="tab-btn" onclick="switchTab(this,'rv-res')">Response</button>
+    </div>
+
+    <div class="tab-content active" id="rv-params">
+      <table class="param-table">
+        <thead><tr><th>Header</th><th>Tipo</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">Authorization</span><span class="required">required</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>El token a revocar con esquema Bearer. Formato: <code style="font-family:'JetBrains Mono',monospace;color:var(--muted)">Bearer eyJhbG...</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-content" id="rv-req">
+      <div class="code-wrap">
+        <div class="code-header"><span>HTTP</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre><span class="k">DELETE</span> <span class="url">https://sso-itg.fly.dev/oauth/revok</span>
+<span class="n">Authorization</span><span class="c">:</span> <span class="s">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</span></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span>cURL</span><button class="copy-btn" onclick="copy(this)">Copiar</button></div>
+        <pre>curl -X DELETE <span class="url">https://sso-itg.fly.dev/oauth/revok</span> \
+  -H <span class="s">"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span></pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="rv-res">
+      <div class="code-wrap">
+        <div class="code-header"><span>201 OK</span></div>
+        <pre>{
+  <span class="n">"code"</span>:       <span class="v">201</span>,
+  <span class="n">"statusCode"</span>: <span class="v">201</span>,
+  <span class="n">"message"</span>:    <span class="s">"Token revocado exitosamente"</span>
+}</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><span>404 — Token no encontrado</span></div>
+        <pre>{
+  <span class="n">"status"</span>:  <span class="v">404</span>,
+  <span class="n">"message"</span>: <span class="s">"No se encontro un refresh token"</span>,
+  <span class="n">"code"</span>:    <span class="s">"CODE_NOT_FOUND"</span>,
+  <span class="n">"details"</span>: <span class="s">"USER"</span>
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <div style="height:4rem"></div>
+</main>
+
+<script>
+function switchTab(btn, contentId) {
+  const endpoint = btn.closest('.endpoint') || btn.closest('section');
+  endpoint.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  endpoint.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(contentId).classList.add('active');
+}
+
+function copy(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+  });
+}
+
+// Active nav link on scroll
+const sections = document.querySelectorAll('.endpoint');
+const navLinks = document.querySelectorAll('nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.id; });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import express from "express";
-import { Request, Response, NextFunction } from "express";
+import path from 'path'
 import pool from "@config/db";
 import dotenv from "dotenv";
 
@@ -42,6 +42,9 @@ app.use('/oauth', oauthRoutes);
 app.get('/secure', authenticateRequest, (req, res) => {
     res.send('Secure data');
 });
+app.get('/docs-auth', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'oauth-docs.html'))
+})
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
