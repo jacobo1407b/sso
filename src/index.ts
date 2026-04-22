@@ -43,7 +43,9 @@ app.get('/secure', authenticateRequest, (req, res) => {
     res.send('Secure data');
 });
 app.get('/docs-auth', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'oauth-docs.html'))
+    const filePath = path.join(__dirname, 'public', 'oauth-docs.html')
+    console.log('Buscando en:', filePath) // confirma el path
+    res.sendFile(filePath)
 })
 app.use(errorHandler);
 
